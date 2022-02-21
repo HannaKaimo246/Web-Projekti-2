@@ -35,6 +35,7 @@ import LoginList from "./components/User/LoginList"
 const App = () => {
 
 
+
   // const [user, logout] = useAuth()
   const [places, setPlaces] = useState([]);
   const [weatherData, setWeatherData] = useState([]);
