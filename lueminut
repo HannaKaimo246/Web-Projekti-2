@@ -1,0 +1,109 @@
+Rajapinnan kutsut ja niissä käytettävät json-muodot.
+
+
+http://localhost:3000/api/login
+selain:
+{nimimerkki: this.nimimerkki,salasana: this.salasana}
+
+palvein:
+{success: false, errors: errors.array()}
+{token: token, user: req.body.nimimerkki}
+
+http://localhost:3000/api/register
+selain:
+{nimimerkki: this.nimimerkki, sahkoposti: this.sahkoposti, salasana: this.salasana, salasana2: this.salasana2}
+palvelin:
+{success: false,errors: errors.array()}
+{success: true, message: 'Rekisteröinti onnistui!', user: user, email: email}
+{success: false, message: 'Rekisteröinti epäonnistui!', user: user, email: email}
+
+http://localhost:3000/api/check
+Palvelin:
+{user: req.userData.user,time: req.userData.exp}
+
+http://localhost:3000/api/search?name
+Palvelin:
+{success: true,message: 'Haku onnistui!',userdata: rows}
+
+http://localhost:3000/api/invites
+Selain:
+{vastaanottaja: value}
+Palvelin:
+{success: false, errors: errors.array()}
+{success: true,message: 'Kutsu onnistui!'}
+{success: true,message: 'Kutsu epäonnistui!'}
+
+http://localhost:3000/api/search/users?page=${value}&filter=${id}
+Palvelin:
+{success: true,message: 'Haku onnistui!',userdata: rows,count: rows2}
+
+http://localhost:3000/api/myInvites
+Palvelin:
+{success: true,message: 'haku onnistui!',userdata: rows}
+
+http://localhost:3000/api/deleteInvite
+Selain:
+{tunnus: value}
+Palvelin:
+{success: true,message: 'poisto onnistui!',id: req.body.tunnus}
+{success: false,message: 'poisto epäonnistui!'}
+
+http://localhost:3000/api/deleteInvite2
+Selain:
+{tunnus: value}
+Palvelin:
+{success: true,message: 'poisto onnistui!',id: req.body.tunnus}
+{success: false,message: 'poisto epäonnistui!'}
+
+http://localhost:3000/api/myInvites
+Palvelin:
+{success: true,message: 'hakeminen onnistui!',userdata: rows}
+
+http://localhost:3000/api/acceptInvite
+Selain:
+{tunnus: value}
+Palvelin:
+{success: true,message: 'päivitys onnistui!',id: req.body.tunnus}
+
+http://localhost:3000/api/mapUsers?page
+{success: true,message: 'Listan näyttäminen onnistui!',userdata: rows,id: req.userData.id,username: req.userData.user}
+
+http://localhost:3000/api/settings/username
+Selain:
+{nimimerkki: this.nimimerkki}
+Palvelin:
+{success: false,errors: errors.array()}
+
+http://localhost:3000/api/settings/password
+Selain:
+{salasana: this.salasana}
+
+http://localhost:3000/api/postMessage
+Selain:
+{viesti: viesti,vastaanottaja_id: vastaanottaja}
+Palvelin:
+{success: true,message: 'Viestin lisäys onnistui!',value: {"vastaanottaja_id":req.body.vastaanottaja_id,"lahettaja_id":req.userData.id,"sisalto":req.body.viesti,"paivamaara":paivamaara,"nimimerkki":req.userData.user},id: req.userData.id}
+
+http://localhost:3000/api/users?page
+Palvelin:
+{success: true,message: 'Listan näyttäminen onnistui!',value: rows,count: rows2,id: req.userData.id}
+
+http://localhost:3000/api/userDetail?id=${value}&page=${this.sivut}&filter=${lajittele}
+Palvelin:
+{success: false,errors: errors.array()}
+{success: true,message: 'viestin tiedot onnistui!',userdata: rows,id: req.userData.id,id2: req.query.id}
+
+http://localhost:3000/api/searchFriends?search=${value}
+{success: true,message: 'Listan näyttäminen onnistui!',userdata: rows}
+
+http://localhost:3000/api/deleteUser
+Selain:
+{tunnus: id}
+Palvelin:
+{success: true,message: 'Poisto onnistui!',value: req.body.tunnus}
+
+http://localhost:3000/api/deleteUserMessage
+Selain:
+{tunnus: id,viesti: sisalto}
+Palvelin:
+{success: true,message: 'Poisto onnistui!',tunnus: req.body.tunnus,sisalto: req.body.viesti,oma: req.userData.id}

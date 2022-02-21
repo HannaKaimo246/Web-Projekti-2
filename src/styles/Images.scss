@@ -1,0 +1,11 @@
+.images {
+    position: relative;
+    width: 100%;
+
+}
+
+.images > img {
+    float: left;
+    width: 50%;
+    height: auto;
+}

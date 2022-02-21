@@ -1,0 +1,36 @@
+.description {
+    position: relative;
+    width: 100%;
+    min-height: 50vh;
+    margin-top: 200px;
+    margin-bottom: 200px;
+    padding: 50px;
+
+
+
+}
+
+p {
+    font-size: 1.2rem;
+    padding: 10px 20px;
+    text-indent: 50px;
+    line-height: 1.8;
+}
+
+
+/*
+  This classes are for the directive.
+  For each element observed by our directive, the before-enter class is added.
+*/
+.before-enter {
+    opacity: 0;
+    transform: translateY(100px);
+    transition: all 2s ease-out;
+}
+/*
+  If the element intersects with the viewport, the before-enter class is added.
+*/
+.enter {
+    opacity: 1;
+    transform: translateY(0px);
+}

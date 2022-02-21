@@ -1,0 +1,32 @@
+@import url('https://use.fontawesome.com/releases/v5.7.2/css/all.css');
+
+
+form.sign-in-form {
+  z-index: 2;
+}
+
+
+.virhe {
+
+  color: red;
+
+}
+
+@mixin showpass($property) {
+  position: absolute;
+  right: $property;
+  z-index: 11;
+  cursor: pointer;
+  top: 0;
+
+
+}
+
+.show-icon {
+  @include showpass(20px);
+}
+.hide-icon {
+  @include showpass(18px);
+  color: #555;
+}
+
