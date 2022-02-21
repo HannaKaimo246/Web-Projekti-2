@@ -24,7 +24,7 @@ import ForgotPassword from "./components/User/ForgotPassword"
 
 import Settings from "./components/User/Settings"
 
-import PrivateChat from "./components/Chat/PrivateChat"
+import PrivateChatPage from "./views/PrivateChatPage"
 
 import UserPage from "./views/UserPage"
 
@@ -145,7 +145,7 @@ const App = () => {
                         </li>
                         {user &&
                             <li>
-                                <Link className="navstyles" to="/api/chat">Chat<i
+                                <Link className="navstyles" to="/api/privatechat">Private Chat<i
                                     className="ion-md-chatbubbles"/></Link>
                             </li>
                         }
@@ -174,7 +174,7 @@ const App = () => {
             <AuthProvider>
                 <Switch>
                     <PrivateRoute exact path="/api/settings" component={Settings} />
-                    <Route path="/api/chat" component={PrivateChat} />
+                    <Route path="/api/privatechat" component={PrivateChatPage} />
                     <Route path="/api/user/:id" component={UserPage} />
                     <Route path="/api/forgot-password" component={ForgotPassword} />
                     <Route path="/api/loginList" component={LoginList} />
