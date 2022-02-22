@@ -1,16 +1,39 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 
 import socketIOClient from "socket.io-client"
-
-const ENDPOINT = "http://localhost:8080"
-
 import PrivateChat from "../components/Chat/PrivateChat";
 import axios from "axios";
 import {useAuth} from "../contexts/AuthContext";
 
 const PrivateChatPage = () => {
 
-     const [user, logout] = useAuth()
+    const ENDPOINT = "http://localhost:8080"
+
+    const [user, logout] = useAuth()
+
+    const [messages, setMessages] = useState([])
+
+    const [messages2, setMessages2] = useState([])
+
+    const [users, setUsers] = useState([])
+
+    const [id, setId] = useState([])
+
+    const [sivut, setSivut] = useState(0)
+
+    const [tokenArvo, setTokenArvo] = useState(false)
+
+    const [nayta, setNayta] = useState(false)
+
+    const [count, setCount] = useState(0)
+
+    const [id2, setId2] = useState([])
+
+    const [omaTunnus, setOmaTunnus] = useState(0)
+
+    const [paikalla, setPaikalla] = useState([])
+
+    const [typing, setTyping] = useState(false)
 
     const optionList = [
         {
@@ -49,14 +72,14 @@ const PrivateChatPage = () => {
 
                     if (response.status === 202) {
 
-                        console.log("viesti poistettu: " + this.messages2.length);
+                        console.log("viesti poistettu: " + messages2.length);
 
-                        for (const property in this.messages2) {
-                            console.log(this.messages2[property].sisalto);
+                        for (const property in messages2) {
+                            console.log(messages2[property].sisalto);
 
-                            if (this.messages2[property].sisalto == data.sisalto) {
+                            if (messages2[property].sisalto == data.sisalto) {
 
-                                this.messages2.splice(property, 1);
+                                messages2.splice(property, 1);
 
                             }
 
@@ -113,14 +136,14 @@ const PrivateChatPage = () => {
 
                     const data = await response.json();
 
-                    if (response.status === 202) {
+                    if (response.status === 200) {
 
-                        for (const property in this.users) {
-                            console.log(this.users[property].vastaanottaja_id);
+                        for (const property in users) {
+                            console.log(users[property].vastaanottaja_id);
 
-                            if (this.users[property].vastaanottaja_id == data.value) {
+                            if (users[property].vastaanottaja_id == data.value) {
 
-                                this.users.splice(property, 1)
+                                users.splice(property, 1)
 
                             }
 
@@ -150,12 +173,12 @@ const PrivateChatPage = () => {
             const socket = socketIOClient(ENDPOINT)
 
             socket.emit("user-join", {
-                "id": this.omaTunnus
+                "id": omaTunnus
             });
 
             socket.emit("privateTyping", {
-                "id": this.id,
-                "id2": this.id2,
+                "id": id,
+                "id2": id2,
                 "arvo": value
             });
 
@@ -190,7 +213,7 @@ const PrivateChatPage = () => {
 
                     if (response.status === 200) {
 
-                        this.users = data.value;
+                        setUsers(data.value)
 
                     } else {
 
@@ -236,12 +259,11 @@ const PrivateChatPage = () => {
 
                     if (response.status === 201) {
 
-                        this.messages2.push(data.value)
+                        setMessages2(oldArray => [...oldArray,data.value] )
 
-                        this.sivut = this.sivut + 1
+                        setSivut(sivut + 1)
 
-                        this.messages = [];
-
+                        setMessages([])
 
                         // lähetetään tiedot vastaanottajalle
 
@@ -281,11 +303,11 @@ const PrivateChatPage = () => {
 
         if (lataa) {
 
-            this.sivut = this.sivut + 10;
+            setSivut(sivut + 10)
 
         } else {
 
-            this.sivut = 0;
+            setSivut(0)
 
         }
 
@@ -296,15 +318,10 @@ const PrivateChatPage = () => {
         if (token == null)
             return false
 
-        const messageObject = {
-            viesti: viesti,
-            vastaanottaja_id: vastaanottaja
-        }
-
         try {
 
             await axios
-                .get(`http://localhost:8080/api/userDetail?id=${value}&page=${this.sivut}&filter=${lajittele}`,
+                .get(`http://localhost:8080/api/userDetail?id=${value}&page=${sivut}&filter=${lajittele}`,
                     {headers: {Authorization: 'Bearer: ' + token}}
                 )
                 .then(async response => {
@@ -315,35 +332,35 @@ const PrivateChatPage = () => {
 
                         if (!lataa) {
 
-                            this.messages2 = [];
+                            setMessages2([])
 
-                            this.messages = data.userdata;
+                            setMessages(data.userdata)
 
-                            let arr = this.messages2.concat(this.messages);
+                            let arr = messages2.concat(messages);
 
-                            this.messages2 = arr;
+                            setMessages2(arr)
 
-                            this.messages2.reverse();
+                            messages2.reverse();
 
-                            this.messages.reverse();
+                            messages.reverse();
 
-                            this.id = data.id;
+                            setId(data.id)
 
-                            this.id2 = data.id2;
+                            setId2(data.id2)
 
                         } else if (data.userdata.length >= 1) {
 
-                            data.userdata.forEach(element => this.messages2.unshift(element));
+                            data.userdata.forEach(element => messages2.unshift(element));
 
                         }
 
                         if (data.userdata.length < 10) {
 
-                            this.nayta = false;
+                            setNayta(false)
 
                         } else {
 
-                            this.nayta = true;
+                            setNayta(true)
 
                         }
 
@@ -408,15 +425,10 @@ const PrivateChatPage = () => {
         if (token == null)
             return false
 
-        const messageObject = {
-            viesti: viesti,
-            vastaanottaja_id: vastaanottaja
-        }
-
         try {
 
             await axios
-                .get(`http://localhost:3000/api/searchFriends?search=${value}`,
+                .get(`http://localhost:8080/api/searchFriends?search=${value}`,
                     {headers: {Authorization: 'Bearer: ' + token}}
                 )
                 .then(async response => {
@@ -425,7 +437,7 @@ const PrivateChatPage = () => {
 
                     if (response.status === 200) {
 
-                        this.users = data.userdata;
+                        setUsers(data.userdata)
 
                     } else {
 
@@ -449,15 +461,15 @@ const PrivateChatPage = () => {
 
         socket.on("PrivateMessageReceived", (data) => {
 
-            console.log("lähetys: " + arvo.id2 + " ja " + data.vastaanottaja_id);
+            console.log("Lahetys: " + id2 + " ja " + data.vastaanottaja_id);
 
-            if (arvo.id2 == data.vastaanottaja_id || arvo.id2 == data.lahettaja_id) {
+            if (id2 == data.vastaanottaja_id || id2 == data.lahettaja_id) {
 
-                arvo.messages2.push(data);
+                setMessages2(oldArray => [...oldArray,data] )
 
-                arvo.sivut = arvo.sivut + 1;
+                setSivut(sivut + 1)
 
-                arvo.messages = [];
+                setMessages([])
 
             }
         })
@@ -468,12 +480,11 @@ const PrivateChatPage = () => {
 
             console.log("sisalto: " + JSON.stringify(data));
 
-            for (const property in arvo.messages2) {
+            for (const property in messages2) {
 
+                if (messages2[property].sisalto == data.sisalto) {
 
-                if (arvo.messages2[property].sisalto == data.sisalto) {
-
-                    arvo.messages2.splice(property, 1);
+                    messages2.splice(property, 1);
 
                 }
 
@@ -486,11 +497,12 @@ const PrivateChatPage = () => {
          */
 
         socket.on('user-online', (data) => {
-            // update status of data.user_id according to your need.
+
             console.log("tieto id: " + JSON.stringify(data));
 
-            if (arvo.omaTunnus != data && !arvo.paikalla.includes(data)) {
-                arvo.paikalla.push(data);
+            if (omaTunnus != data && !paikalla.includes(data)) {
+
+                setPaikalla(oldArray => [...oldArray,data] )
             }
 
         });
@@ -502,9 +514,9 @@ const PrivateChatPage = () => {
         socket.on('privateTyping', (value) => {
 
             if (value) {
-                arvo.typing = true;
+                setTyping(true)
             } else {
-                arvo.typing = false;
+                setTyping(false)
             }
 
         });
@@ -515,9 +527,9 @@ const PrivateChatPage = () => {
 
         socket.on('user-unjoin', (data) => {
 
-            let index = arvo.paikalla.indexOf(data);
+            let index = paikalla.indexOf(data);
 
-            arvo.paikalla.splice(index,1);
+            paikalla.splice(index,1);
 
         });
 
@@ -542,10 +554,10 @@ const PrivateChatPage = () => {
 
             try {
 
-                this.tokenArvo = true;
+                setTokenArvo(true)
 
                 await axios
-                    .get(`http://localhost:3000/api/users?page=${0}`,
+                    .get(`http://localhost:8080/api/users?page=${0}`,
                         {headers: {Authorization: 'Bearer: ' + token}}
                     )
                     .then(async response => {
@@ -554,18 +566,18 @@ const PrivateChatPage = () => {
 
                         if (response.status === 200) {
 
-                            this.users = data.value;
+                            setUsers(data.value)
 
-                            this.omaTunnus = data.id;
+                            setOmaTunnus(data.id)
 
-                            let luku = (data.count[0].count / 8);
+                            let luku = (data.count[0].count / 8)
 
                             if (luku > 0) {
 
-                                this.count = Math.ceil(luku);
+                                setCount(Math.ceil(luku))
 
                             } else {
-                                this.count = 1;
+                                setCount(1)
                             }
 
                             socket.emit("user-join", {

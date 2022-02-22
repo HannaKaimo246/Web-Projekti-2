@@ -2,9 +2,9 @@ import React, {useRef, useState} from "react";
 
 import {Form, Button, Card, Alert, Container} from "react-bootstrap";
 
-import '../styles/Login.scss'
+import '../../styles/Login.scss'
 
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 import {Link, useHistory} from "react-router-dom";
 
 const Login = () => {

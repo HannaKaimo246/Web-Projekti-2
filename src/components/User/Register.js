@@ -2,11 +2,11 @@ import React, {useRef, useState} from "react";
 
 import {Form, Button, Card, Alert} from "react-bootstrap";
 
-import '../styles/Register.scss'
+import '../../styles/Register.scss'
 
 import PasswordStrengthBar from 'react-password-strength-bar';
 
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 import {useHistory} from "react-router-dom";
 
 const Register = () => {
