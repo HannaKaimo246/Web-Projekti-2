@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from "react";
 
-import Register from '../components/Register'
+import Register from '../components/User/Register'
 
-import Login from '../components/Login'
+import Login from '../components/User/Login'
 
-import Panels from '../components/Panels'
+import Panels from '../components/Home/Panels'
 
 import '../styles/UserPage.scss'
 import {useParams} from "react-router-dom";
@@ -13,7 +13,7 @@ const UserPage = () => {
 
     const [currentPage, setCurrentPage] = useState('')
 
-    const { id } = useParams();
+    const {id} = useParams();
 
     useEffect(() => {
 
@@ -22,22 +22,13 @@ const UserPage = () => {
 
     }, [id])
 
-    return(
+    return (
 
-        <div className={currentPage=='register' ? "container sign-up-mode" : "container"}>
+        <div className={currentPage == 'register' ? "container sign-up-mode" : "container"}>
             <div className="forms-container">
                 <div className="signin-signup">
-
-
-                        {currentPage == 'register' && <Register></Register>}
-
-                    {currentPage=='login' && <Login></Login>}
-
-
-
-
-
-
+                    {currentPage == 'register' && <Register></Register>}
+                    {currentPage == 'login' && <Login></Login>}
                 </div>
             </div>
             <Panels page={currentPage}></Panels>

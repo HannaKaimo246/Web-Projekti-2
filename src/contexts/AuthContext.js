@@ -51,7 +51,9 @@ export const AuthProvider = ({ children }) => {
 
                 // kirjautuminen onnistui!
 
-                history.push('/chats');
+                history.push('/');
+
+                console.log("kirjautuminen onnistui!")
 
                 localStorage.setItem('token', 'tokenarvo')
 

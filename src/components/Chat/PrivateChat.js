@@ -152,7 +152,7 @@ const PrivateChat = (props) => {
 
         if (nykyinenSivumaara != (count + 1) && nykyinenSivumaara >= 1) {
 
-            this.$emit('selaa', sivu);
+            props.selaa(sivu)
 
         }
 

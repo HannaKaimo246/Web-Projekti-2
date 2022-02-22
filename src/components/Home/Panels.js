@@ -1,6 +1,6 @@
 import React from "react";
 import {useHistory, useParams} from "react-router-dom";
-import '../styles/Panels.scss'
+import '../../styles/Panels.scss'
 
 const Panels = (props) => {
 

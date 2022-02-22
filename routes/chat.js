@@ -47,7 +47,7 @@ router.post("/api/postMessage", urlencodedParser, VerifyToken, function (req, re
              * Jos tietokanta kysely onnistui niin palautetaan selaimeen status 200 ja luodut tiedot.
              */
 
-            return res.status(200).json({
+            return res.status(201).json({
                 success: true,
                 message: 'Viestin lisäys onnistui!',
                 value: {"vastaanottaja_id":req.body.vastaanottaja_id,"lahettaja_id":req.userData.id,"sisalto":req.body.viesti,"paivamaara":paivamaara,"nimimerkki":req.userData.user},
@@ -165,7 +165,7 @@ router.get("/api/userDetail", VerifyToken,
              * Jos tietokanta kysely onnistui, näyteään viestit selaimessa
              */
 
-            return res.status(200).json({
+            return res.status(201).json({
                 success: true,
                 message: 'viestin tiedot onnistui!',
                 userdata: rows,
@@ -277,7 +277,7 @@ router.delete("/api/deleteUserMessage", VerifyToken, function (req, res) {
 
             await query(sql,[req.userData.id, req.body.tunnus, req.body.tunnus, req.userData.id, req.body.viesti]);
 
-            return res.status(200).json({
+            return res.status(202).json({
                 success: true,
                 message: 'Poisto onnistui!',
                 tunnus: req.body.tunnus,

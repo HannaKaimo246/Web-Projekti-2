@@ -1,20 +1,17 @@
-
-// React toteutus:
-
 const express = require('express');
 const http = require('http');
 
 /**
- * Server.js tiedostossa kokontuu projektin kaikki javascript tiedostot yhteen.
+ * Server.js tiedostossa kokontuu projektin kaikki nodeJS tiedostot yhteen.
  */
 
 const app = express();
 const server = http.createServer(app);
 app.set("trust proxy", 1);
 
-//const privateChat = require('./routes/privatechat');
+const privateChat = require('./routes/privatechat');
 
-//app.use(privateChat);
+app.use(privateChat);
 
 const kayttaja = require('./routes/user');
 
@@ -35,7 +32,6 @@ app.use(cors());
 
 app.use(express.static(path.join(__dirname,'./public')));
 
-/*
 const io = require('socket.io')(server, {
     cors: {
         origin: '*',
@@ -43,11 +39,12 @@ const io = require('socket.io')(server, {
 });
 
 require('./routes/sockets')(io);
-*/
+
 server.listen(8080, () => {
 
-    var host = server.address().address
-    var port = server.address().port
+    let host = server.address().address
+    let port = server.address().port
 
-    console.log("PrivateChat app listening at http://%s:%s", host, port)
+    console.log("Chat app listening at http://%s:%s", host, port)
 });
+

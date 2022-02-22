@@ -5,39 +5,39 @@ const ImageSlider = () => {
 
 const data = [
     {
-        image: require("../assets/openchat.png"),
+        image: require("../../assets/openchat.png"),
         caption: "Open PrivateChat"
     },
     {
-        image: require("../assets/privatechat.png"),
+        image: require("../../assets/privatechat.png"),
         caption: "Private PrivateChat"
     },
     {
-        image: require("../assets/kartta.png"),
+        image: require("../../assets/kartta.png"),
         caption: "Kartta"
     },
     {
-        image: require("../assets/asetukset2.png"),
+        image: require("../../assets/asetukset2.png"),
         caption: "Asetukset"
     },
     {
-        image: require("../assets/log.png"),
+        image: require("../../assets/log.png"),
         caption: "Kirjautumis-sivu"
     },
     {
-        image: require("../assets/reg.png"),
+        image: require("../../assets/reg.png"),
         caption: "Rekisteröitymis-sivu"
     },
     {
-        image: require("../assets/selaa.png"),
+        image: require("../../assets/selaa.png"),
         caption: "Selaa"
     },
     {
-        image: require("../assets/hae.png"),
+        image: require("../../assets/hae.png"),
         caption: "Hae"
     },
     {
-        image: require("../assets/kutsu.png"),
+        image: require("../../assets/kutsu.png"),
         caption: "Kutsu"
     }
 ];
