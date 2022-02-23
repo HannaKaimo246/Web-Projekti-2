@@ -56,7 +56,7 @@ const Settings = () => {
         <>
             <Card>
                 <Card.Body>
-                    <h2 className="text-center mb-4">Profiili sivu</h2>
+                    <h2 className="text-center mb-4">Asetukset</h2>
                     {error && <Alert variant="danger">{error}</Alert>}
                     <form onSubmit={handleSubmit}>
                         <Form.Group id="email">
@@ -65,7 +65,7 @@ const Settings = () => {
                         </Form.Group>
                         <Form.Group id="password">
                             <Form.Label>Password</Form.Label>
-                            <Form.Control type="email" ref={passwordRef} required placeholder="Jätä kenttä tyhjäksi pitääkseen salasanan ennallaan." />
+                            <Form.Control type="password" ref={passwordRef} required placeholder="Jätä kenttä tyhjäksi pitääkseen salasanan ennallaan." />
                         </Form.Group>
                         <Form.Group id="password-confirm">
                             <Form.Label>Password Confirmation</Form.Label>

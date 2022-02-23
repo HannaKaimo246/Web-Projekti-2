@@ -30,13 +30,10 @@ import UserPage from "./views/UserPage"
 
 import LoginList from "./components/User/LoginList"
 
-//import {auth} from "./firebase"
+import Navbar from "./components/Home/NavBar"
 
 const App = () => {
 
-
-
-  // const [user, logout] = useAuth()
   const [places, setPlaces] = useState([]);
   const [weatherData, setWeatherData] = useState([]);
   const [coordinates, setCoordinates] = useState({});
@@ -62,25 +59,6 @@ const App = () => {
         })
       }, [coordinates, bounds]);
 
-
-    // const [user, logout] = useAuth()
-
-    const [user, logout] = useState('')
-
-    const history = useHistory()
-
-    const handleLogout = async () => {
-        // await auth.signOut()
-        // setUser(false)
-        try {
-            await logout()
-            history.pushState("api/login")
-        } catch {
-            alert("Uloskirjautuminen epäonnistui!")
-        }
-
-    }
-
     // The back-to-top button is hidden at the beginning
     const [showButton, setShowButton] = useState(false);
 
@@ -101,16 +79,6 @@ const App = () => {
             behavior: 'smooth' // for smoothly scrolling
         });
     };
-
-    useEffect(() => {
-        const loggedInUser = localStorage.getItem("token");
-        if (loggedInUser) {
-
-            // setUser(true);
-        } else {
-            //   setUser(false);
-        }
-    }, []);
 
     return (
 <>{/*
@@ -134,44 +102,8 @@ const App = () => {
     */}
     <div id="app">
         <Router>
-            <div id="sliderbar">
-                <nav>
-                    <ul>
-                        <figure className="image-logo">
-                            <img src={require("./assets/logo.png")} height="40px" width="40px" />
-                        </figure>
-                        <li>
-                            <Link className="navstyles" to="/">Etusivu<i className="ion-ios-home" /></Link>
-                        </li>
-                        {user &&
-                            <li>
-                                <Link className="navstyles" to="/api/privatechat">Private Chat<i
-                                    className="ion-md-chatbubbles"/></Link>
-                            </li>
-                        }
-                        <li>
-                            <Link className="navstyles" to="/api/map">Kartta<i className="ion-ios-map" /></Link>
-                        </li>
-                        {user &&
-                            <li>
-                                <Link className="navstyles" to="/api/settings">Asetukset<i className="ion-ios-settings" /></Link>
-                            </li>
-                        }
-
-                        {user
-                            ?   <div className="user">
-                                <p>Kirjautunut:</p>
-                                <Link to="/"><button type="button" onClick={handleLogout}>Kirjaudu-ulos</button></Link>
-                            </div>
-                            :    <div className="user">
-                                <Link to="/api/user/login"><button type="button">Kirjaudu sisään</button></Link>
-                                <Link to="/api/user/register"><button type="button">Rekisteröidy</button></Link>
-                            </div>
-                        }
-                    </ul>
-                </nav>
-            </div>
             <AuthProvider>
+                <Navbar />
                 <Switch>
                     <PrivateRoute exact path="/api/settings" component={Settings} />
                     { /* <Route path="/api/privatechat" component={PrivateChatPage} /> */}
