@@ -1,78 +1,12 @@
 @import url('https://use.fontawesome.com/releases/v5.7.2/css/all.css');
 
-
 .virhe {
 
     color: red;
 
 }
 
-
-
 form.sign-up-form {
     opacity: 0;
     z-index: 1;
 }
-
-// salasana tarkistin
-
-
-
-   .strength {
-       height: 5px;
-       max-width: 360px;
-       background-color: #a5df41;
-       border-radius: 40px;
-       overflow: hidden;
-       z-index: 9;
-       transition: all .5s linear;
-   }
-@mixin level($position, $width, $color) {
-    bottom: $position;
-    width: $width;
-    background-color: $color;
-}
-.level_0 {
-    @include level(0, 25%, white);
-}
-.level_1 {
-    @include level(-10px, 25%, #BB4440);
-}
-.level_2 {
-    @include level(-10px, 50%, #E17D30);
-}
-.level_3 {
-    @include level(-10px, 75%, #F0B03F);
-}
-.level_4 {
-    @include level(-10px, 80%, #a5df41);
-}
-.level_5 {
-    @include level(-10px, 80%, #a5df41);
-}
-.level_6 {
-    @include level(-10px, 80%, #BB4440);
-}
-.level-icon {
-    position: absolute;
-    right: 20px;
-    top:20px;
-    z-index: 11;
-}
-@mixin showpass($property) {
-    position: absolute;
-    right: $property;
-    z-index: 11;
-    cursor: pointer;
-    top: 0;
-
-
-}
-.show-icon {
-    @include showpass(20px);
-}
-.hide-icon {
-    @include showpass(18px);
-    color: #555;
-}
-

@@ -31,7 +31,7 @@ const { check, validationResult } = require('express-validator');
 
 router.post("/api/login", urlencodedParser,
     [check('salasana').isLength({ min: 8 }).withMessage("Salasana täytyy olla vähintään 8 merkkiä pitkä!"),
-        check('nimimerkki').isLength({ min: 5 }).withMessage("Nimimerkki täytyy olla vähintään 5 merkkiä pitkä!")],
+        check('sahkoposti').isEmail().withMessage("Sähköpostiosoite ei ole kelvollinen!")],
     function (req, res) {
 
     let jsonObj = req.body;
@@ -44,24 +44,18 @@ router.post("/api/login", urlencodedParser,
             });
         }
 
-        let sql = "SELECT * FROM kayttaja WHERE nimimerkki = ?";
+        let sql = "SELECT * FROM kayttaja WHERE sahkoposti = ?";
 
     (async () => { // IIFE (Immediately Invoked Function Expression)
         try {
 
-            const rows = await query(sql,[jsonObj.nimimerkki]);
-
-            /**
-             * Jos tietokannasta tuli sisältöä.
-             */
-
-            if (rows.length != 0) {
+            const rows = await query(sql,[jsonObj.sahkoposti]);
 
                 /**
                  * Tarkistetaan onko nimimerkki ja salasana kelvollisia.
                  */
 
-                if (rows[0].nimimerkki != null && rows[0].salasana != null) {
+                if (rows[0].sahkoposti != null && rows[0].salasana != null && rows.length != 0) {
 
                     /**
                      * Otetaan käyttäjän id tietokannasta
@@ -77,35 +71,32 @@ router.post("/api/login", urlencodedParser,
 
                     if (validPassword) {
 
-                        var token = jwt.sign({id: insertedId, user: req.body.nimimerkki}, config.secret, {
-                            expiresIn: "30min"
+                        const tokenValue = jwt.sign({id: insertedId, user: req.body.sahkoposti}, config.secret, {
+                            expiresIn: "1h"
                         });
 
                         /**
-                         * Jos kaikki onnistui viedään token selaimeen ja käyttäjän nimimerkki tallentamaan vuexiin.
+                         * Jos kaikki onnistui viedään token selaimeen ja käyttäjän tiedot.
                          */
 
-                        return res.send({
-                            token: token,
-                            user: req.body.nimimerkki
-
+                        res.status(202).json({
+                            token: tokenValue,
+                            user: req.body.sahkoposti
                         });
 
+                    } else {
+                        res.status(204).send()
                     }
 
+                } else {
+
+                    res.status(401).send('Tyhjät kentät!')
                 }
-
-            }
-
-            return res.status(401).json({
-                success: false,
-                message: 'Kirjautuminen epäonnistui!',
-            })
-
 
         }
         catch (err) {
-            console.log("Database error!"+ err);
+            console.log("Insertion into some (2) table was unsuccessful!" + err)
+            res.status(400).send('kirjautuminen ei onnistunut!' + err)
 
         }
     })()
@@ -119,15 +110,13 @@ router.post("/api/login", urlencodedParser,
 
 router.post("/api/register", urlencodedParser,
     [check('salasana').isLength({ min: 8 }).withMessage("Salasana täytyy olla vähintään 8 merkkiä pitkä!"),
-        check('nimimerkki').isLength({ min: 5 }).withMessage("Nimimerkki täytyy olla vähintään 5 merkkiä pitkä!"),
         check('sahkoposti').isEmail().normalizeEmail().withMessage("Sähköpostin muotoilu on väärin!"),
         check('salasana').custom((value,{req}) => {
-        if (value !== req.body.salasana2) {
-
-            throw new Error("Salasanat eivät täsmäää!");
-        } else {
-            return value;
-        }
+            if (value !== req.body.salasana2) {
+                throw new Error("Salasanat eivät täsmäää!")
+            } else {
+                return value
+            }
     })
 
     ],
@@ -144,47 +133,25 @@ router.post("/api/register", urlencodedParser,
             });
         }
 
-
-
-    let sql = "INSERT into kayttaja (nimimerkki , sahkoposti, salasana)"
-        + " VALUES (?, ?, ?)";
+    let sql = "INSERT into kayttaja (sahkoposti, salasana)"
+        + " VALUES (?, ?)";
 
     (async () => { // IIFE (Immediately Invoked Function Expression)
         try {
 
-
-
-
-
-            let user = true;
-
-            let email = true;
-
-            let sql2 = "SELECT nimimerkki FROM kayttaja WHERE nimimerkki = ?";
+            let email = false;
 
             let sql3 = "SELECT sahkoposti FROM kayttaja WHERE sahkoposti = ?";
 
-            const rows = await query(sql2,[jsonObj.nimimerkki]);
-
             const rows2 = await query(sql3,[jsonObj.sahkoposti]);
-
-            /**
-             * Tarkistetaan onko samanlainen nimimerkki olemassa tietokannassa.
-             */
-
-            if (JSON.stringify(rows.length) != 0) {
-
-                user = false;
-
-            }
 
             /**
              * Tarkistetaan onko samanlainen sahkoposti olemassa tietokannassa.
              */
 
-            if (JSON.stringify(rows2.length) != 0) {
+            if (JSON.stringify(rows2.length) == 0) {
 
-                email = false;
+                email = true;
 
             }
 
@@ -192,26 +159,17 @@ router.post("/api/register", urlencodedParser,
              * Jos salasanat täsmää sekä nimimerkki ja sahkoposti eivät ole olemassa niin hashataan salasana ja viedään tiedot kantaan.
              */
 
-            if (jsonObj.salasana == jsonObj.salasana2 && user == true && email == true) {
+            if (jsonObj.salasana == jsonObj.salasana2 && email == true) {
 
                 let hashedPassword = await bcrypt.hash(jsonObj.salasana, 10);
 
-                await query(sql,[jsonObj.nimimerkki, jsonObj.sahkoposti, hashedPassword]);
+                await query(sql,[jsonObj.sahkoposti, hashedPassword]);
 
-                res.status(200).json({
-                    success: true,
-                    message: 'Rekisteröinti onnistui!',
-                    user: user,
-                    email: email
-                })
+                res.status(201).send('Rekisteröinti onnistui!')
 
             } else {
-                res.status(403).json({
-                    success: false,
-                    message: 'Rekisteröinti epäonnistui!',
-                    user: user,
-                    email: email
-                })
+
+                res.status(403).send('Rekisteröinti epäonnistui!')
             }
 
         }

@@ -9,13 +9,17 @@ const app = express();
 const server = http.createServer(app);
 app.set("trust proxy", 1);
 
-const privateChat = require('./routes/privatechat');
+const privateChat = require('./routes/chat');
 
 app.use(privateChat);
 
 const kayttaja = require('./routes/user');
 
 app.use(kayttaja);
+
+//const firebase = require('./routes/firebaseapi');
+
+//app.use(firebase);
 
 //const settings = require('./routes/settings');
 
