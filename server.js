@@ -5,6 +5,8 @@ const http = require('http');
  * Server.js tiedostossa kokontuu projektin kaikki nodeJS tiedostot yhteen.
  */
 
+
+
 const app = express();
 const server = http.createServer(app);
 app.set("trust proxy", 1);
@@ -16,6 +18,14 @@ app.use(privateChat);
 const kayttaja = require('./routes/user');
 
 app.use(kayttaja);
+
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+    next();
+});
+
+
 
 //const firebase = require('./routes/firebaseapi');
 
@@ -39,6 +49,7 @@ app.use(express.static(path.join(__dirname,'./public')));
 const io = require('socket.io')(server, {
     cors: {
         origin: '*',
+        credentials: true
     }
 });
 
