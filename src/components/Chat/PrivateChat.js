@@ -15,16 +15,7 @@ const PrivateChat = (props) => {
 
     const history = useHistory()
 
-    const optionList = [
-        {
-            value: "uusin"
-        },
-        {
-            value: "vanhin"
-        }
-    ]
-
-    const [selectedOption, setSelectedOption] = useState(optionList[0].value)
+    const [selectedOption, setSelectedOption] = useState('uusin')
 
     const [users, setUsers] = useState(props.users)
 
@@ -59,8 +50,6 @@ const PrivateChat = (props) => {
     const [typing, setTyping] = useState(props.typing)
 
     const [nykyinenRivi, setNykyinenRivi] = useState(0)
-
-    const [aktiivinenRivi, setAktiivinenRivi] = useState(0)
 
     const [omaviesti, setOmaViesti] = useState('')
 
@@ -280,15 +269,11 @@ const PrivateChat = (props) => {
          * Tapahtumakäsitteljä reagoi scrollaukseen siten kun on päädytty paikkaan 0 eli scrollattu ihan ylös. Tällöin ladataan 10 uutta viestiä tietokannasta. Tiedot viedään ylemmälle komponentille ja axios vie tiedot palvelimeen.
          */
 
-        // element should be replaced with the actual target element on which you have applied scroll, use window in case of no target element.
-
         let content = sisalto.current
 
-        content.addEventListener("scroll", function () {
+        content.addEventListener("scroll", () => {
 
             if (content.scrollTop > 0 && content.scrollTop < 10) {
-
-                props.haeKaveri(valittuID, true, selectedOption)
 
                 setNykyinenRivi(content.scrollHeight)
 
@@ -297,6 +282,16 @@ const PrivateChat = (props) => {
         }, false);
 
     }, [])
+
+    /*
+     *  Jos kayttajan nykyinenrivi(paikka) on ylhaalla niin haetaan lisaa vastaanottajan viesteja tietokannasta.
+     */
+
+    useEffect(() => {
+
+        props.haeKaveri(valittuID, true, selectedOption)
+
+    }, [nykyinenRivi])
 
 
     useEffect(() => {
@@ -309,13 +304,11 @@ const PrivateChat = (props) => {
 
             let container = document.querySelector("#sisalto");
 
-            setAktiivinenRivi(container.scrollHeight - nykyinenRivi)
-
-            container.scrollTop = aktiivinenRivi;
+            container.scrollTop = container.scrollHeight - nykyinenRivi
 
         });
 
-    }, [messages2])
+    }, [props.messages, props.messages2, props.haeKaveri])
 
 
     useEffect(() => {
@@ -328,15 +321,13 @@ const PrivateChat = (props) => {
 
             setNykyinenRivi(0)
 
-            setAktiivinenRivi(0)
-
             let container = document.querySelector("#sisalto");
 
             container.scrollTop = container.scrollHeight;
 
         });
 
-    }, [messages])
+    }, [props.messages, props.messages2])
 
     useEffect(() => {
 
@@ -353,7 +344,7 @@ const PrivateChat = (props) => {
             setDisabled(false)
         }
 
-    }, [count])
+    }, [props.count])
 
     useEffect(() => {
 
@@ -390,13 +381,9 @@ const PrivateChat = (props) => {
 
     useEffect(() => {
 
-        if (props.messages)
-            setMessages(props.messages)
-
-        if (props.messages2)
             setMessages2(props.messages2)
 
-    },[props.messages, props.messages2])
+    },[props.messages2])
 
 
     return (
@@ -464,34 +451,6 @@ const PrivateChat = (props) => {
                     {id != '' && !nayta && messages2.length != 0 && messages.length >= 10 &&
                         <h3>⬇ Viestit loppuivat ⬇</h3>}
 
-                    {/* messages */}
-                    {messages2.length == 0 && messages.map((message, index) =>
-                        <div key={index} className={message.lahettaja_id == id ? 'oma' : 'toinen'} id="messages">
-                            {message.lahettaja_id == id &&
-                                <button
-                                    onClick={() => poistaViesti(id == message.vastaanottaja_id ? message.lahettaja_id : message.vastaanottaja_id, message.sisalto)}
-                                    className="poisto">🗑️</button>
-                            }
-                            <div className="ulko_sisalto">
-
-                                {message.lahettaja_id != id &&
-                                    <p>{message.sahkoposti}</p>
-                                }
-
-                                <div className="viesti_sisalto">
-                                    <p>{message.sisalto}</p>
-
-                                </div>
-
-                                <div className="aika">
-                                    <p>{aika(message.paivamaara)}</p>
-                                </div>
-
-                            </div>
-
-                        </div>
-                    )}
-
                     {/* messages2 */}
                     {messages2.length !== 0 && messages2.map((message, index) =>
                         <div key={index} className={message.lahettaja_id == id ? 'oma' : 'toinen'} id="messages2">
@@ -519,6 +478,9 @@ const PrivateChat = (props) => {
 
                         </div>
                     )}
+
+
+
                 </section>
 
                 {valittuID !== 0 &&
@@ -528,13 +490,9 @@ const PrivateChat = (props) => {
                         }
                         <input type="text" placeholder="Kirjoita viesti..." name="viestikentta" value={omaviesti} onChange={handleMessageChange} />
                         <button type="submit" id="laheta">Lähetä</button>
-                        <select
-                            name="users"
-                            value={selectedOption}
-                            onChange={handleSelectOption}>
-                            {optionList.map(o => (
-                                <option key={o.value} value={o.value}>{o.value}</option>
-                            ))}
+                        <select value={selectedOption} onChange={handleSelectOption}>
+                            <option value="uusin">Uusin</option>
+                            <option value="vanha">Vanha</option>
                         </select>
                     </Form>
                 }

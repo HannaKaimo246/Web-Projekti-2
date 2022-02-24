@@ -68,7 +68,7 @@ router.post("/api/postMessage", urlencodedParser, VerifyToken, function (req, re
  */
 
 
-router.get("/api/users", VerifyToken,function (req, res) {
+router.get("/api/users", VerifyToken, function (req, res) {
 
 
     /**
@@ -86,6 +86,7 @@ router.get("/api/users", VerifyToken,function (req, res) {
 
     (async () => { // IIFE (Immediately Invoked Function Expression)
         try {
+
             const rows = await query(sql,[1, req.userData.id, req.userData.id, 8, parseInt(req.query.page)]);
 
             const rows2 = await query(sql2,[1, req.userData.id, req.userData.id]);
@@ -104,7 +105,7 @@ router.get("/api/users", VerifyToken,function (req, res) {
 
         }
         catch (err) {
-            console.log("Database error!"+ err);
+            console.log("Database error! api/users " + err);
         }
     })()
 
@@ -165,9 +166,7 @@ router.get("/api/userDetail", VerifyToken,
              * Jos tietokanta kysely onnistui, näyteään viestit selaimessa
              */
 
-            console.log("tiedot: " + req.query.id + " ja " + req.userData.id + " seka " + req.query.page)
-
-            return res.status(201).json({
+           res.status(201).json({
                 success: true,
                 message: 'viestin tiedot onnistui!',
                 userdata: rows,
@@ -240,18 +239,21 @@ router.delete("/api/deleteUser", VerifyToken, function (req, res) {
 
     (async () => { // IIFE (Immediately Invoked Function Expression)
         try {
-            await query(sql,[req.userData.id, req.body.tunnus, req.body.tunnus, req.userData.id]);
 
-            await query(sql2,[req.userData.id, req.body.tunnus, req.body.tunnus, req.userData.id]);
+            const deleteObject = JSON.parse(req.headers['deleteobject'])
+
+            await query(sql,[req.userData.id, deleteObject.tunnus, deleteObject.tunnus, req.userData.id]);
+
+            await query(sql2,[req.userData.id, deleteObject.tunnus, deleteObject.tunnus, req.userData.id]);
 
             /**
              * Jos sql poisto kysely onnistui, läheteään onnistunut status selaimeen.
              */
 
-            return res.status(200).json({
+            res.status(200).json({
                 success: true,
                 message: 'Poisto onnistui!',
-                value: req.body.tunnus
+                value: deleteObject.tunnus
             })
 
         }
@@ -277,19 +279,23 @@ router.delete("/api/deleteUserMessage", VerifyToken, function (req, res) {
     (async () => { // IIFE (Immediately Invoked Function Expression)
         try {
 
-            await query(sql,[req.userData.id, req.body.tunnus, req.body.tunnus, req.userData.id, req.body.viesti]);
+            const deleteObject = JSON.parse(req.headers['deleteobject'])
 
-            return res.status(202).json({
+            console.log(deleteObject.viesti)
+
+            await query(sql,[req.userData.id, deleteObject.tunnus, deleteObject.tunnus, req.userData.id, deleteObject.viesti]);
+
+            res.status(200).json({
                 success: true,
                 message: 'Poisto onnistui!',
-                tunnus: req.body.tunnus,
-                sisalto: req.body.viesti,
+                tunnus: deleteObject.tunnus,
+                sisalto: deleteObject.viesti,
                 oma: req.userData.id
             })
 
         }
         catch (err) {
-            console.log("Database error!"+ err);
+            console.log("Database error! 123 "+ err);
         }
     })()
 

@@ -8,14 +8,21 @@ var config = require('./config');
 function verifyToken(req, res, next) {
 
     try {
+        const authHeader = req.headers['authorization']
+        const token = authHeader && authHeader.split(' ')[1]
 
-        const token = req.headers.authorization.split(" ")[1];
-        const decoded = jwt.verify(token, config.secret);
+        if (token == null) return res.sendStatus(401)
 
-        req.userData = decoded;
+        jwt.verify(token, config.secret, (err, user) => {
 
-        next();
+            if (err) return res.sendStatus(403)
 
+            req.userData = user
+
+            console.log("user (decoded) " + JSON.stringify(user))
+
+            next()
+        })
     }catch (err) {
         res.status(403).json({
             message: 'Tarkistus epäonnistui!'
