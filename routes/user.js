@@ -4,15 +4,15 @@ const router = express.Router();
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 router.use(cors());
-var jwt = require('jsonwebtoken');
-var config = require('./config');
-var VerifyToken = require('./verifytoken');
+const jwt = require('jsonwebtoken');
+const config = require('./config');
+const VerifyToken = require('./verifytoken');
 
 /**
  * Täällä hoidetaan käyttäjän asioita.
  */
 
-var bodyParser = require('body-parser'); // Create application/x-www-form-urlencoded parser (for POST)
+const bodyParser = require('body-parser'); // Create application/x-www-form-urlencoded parser (for POST)
 
 // Create application/x-www-form-urlencoded parser
 let urlencodedParser = bodyParser.urlencoded({ extended: false });

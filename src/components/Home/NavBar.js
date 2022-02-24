@@ -18,7 +18,7 @@ const NavBar = () => {
     const handleLogout = async () => {
         try {
             await logout()
-            history.push("/login")
+            history.push("/api/login")
         } catch (error) {
             console.log("Ei voitu kirjautua ulos!")
         }

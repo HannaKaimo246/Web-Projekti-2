@@ -18,7 +18,7 @@ const Login = () => {
 
     const [newPassword, setNewPassword] = useState('')
 
-    const {login, userExists} = useAuth()
+    const {login, userExists, loginUser} = useAuth()
 
     const [error, setError] = useState('')
 
@@ -108,9 +108,12 @@ const Login = () => {
 
                         handleReset()
 
-                        if (_isMounted)
-                            history.push('/');
+                        if (_isMounted) {
 
+                            loginUser({email: newEmail})
+
+                            history.push('/');
+                        }
                     }
 
                 }).catch(function (error) {

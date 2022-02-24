@@ -5,6 +5,8 @@ import { useHistory } from "react-router-dom";
 import { auth } from '../AuthFirebase';
 import firebase from "firebase/app";
 
+import jwt from 'jwt-decode'
+
 const AuthContext = React.createContext();
 
 export const useAuth = () => useContext(AuthContext);
@@ -15,12 +17,27 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState();
     const history = useHistory();
 
+
+
     const _isMounted = useRef(true); // Initial value _isMounted = true
 
     useEffect(() => {
         return () => { // ComponentWillUnmount in Class Component
             _isMounted.current = false;
         }
+    }, []);
+
+    useEffect(() => {
+
+        const token = localStorage.getItem('token')
+
+        if (token) {
+            const tokenArvo = jwt(token)
+
+            loginUser({email: tokenArvo.user})
+
+        }
+
     }, []);
 
     const signup = (email, password) => {
@@ -70,6 +87,13 @@ export const AuthProvider = ({ children }) => {
 
     const logout = () => {
 
+        const token = localStorage.getItem('token')
+
+        setUser(null)
+
+        if (token)
+            localStorage.removeItem('token')
+
         return auth.signOut()
       
     }
@@ -84,12 +108,20 @@ export const AuthProvider = ({ children }) => {
         return user.updatePassword(password)
     }
 
+    const loginUser = (userdata) => {
+
+        setUser(userdata)
+
+    }
+
     useEffect(() => {
 
-        const authState = auth.onAuthStateChanged((user) => {
-            setUser(user);
-            setLoading(false);
-            if (user) {
+        const authState = auth.onAuthStateChanged((userdata) => {
+
+            setLoading(false)
+
+            if (userdata) {
+                setUser(userdata);
 
                 // kirjautuminen onnistui!
                 history.push("/")
@@ -112,7 +144,8 @@ export const AuthProvider = ({ children }) => {
         deleteUser,
         userExists,
         updateEmail,
-        updatePassword
+        updatePassword,
+        loginUser
     };
 
     return (

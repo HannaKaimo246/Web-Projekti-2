@@ -17,7 +17,7 @@ import ForgotPassword from "./components/User/ForgotPassword"
 
 import Settings from "./components/User/Settings"
 
-//import PrivateChatPage from "./views/PrivateChatPage"
+import PrivateChatPage from "./views/PrivateChatPage"
 
 import UserPage from "./views/UserPage"
 
@@ -57,7 +57,7 @@ const App = () => {
                 <Navbar />
                 <Switch>
                     <PrivateRoute exact path="/api/settings" component={Settings} />
-                    { /* <Route path="/api/privatechat" component={PrivateChatPage} /> */}
+                     <Route path="/api/privatechat" component={PrivateChatPage} />
                     <Route path="/api/user/:id" component={UserPage} />
                     <Route path="/api/forgot-password" component={ForgotPassword} />
                     <Route path="/api/loginList" component={LoginList} />
