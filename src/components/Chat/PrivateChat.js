@@ -6,13 +6,25 @@ import React, {useRef, useState, useEffect} from "react"
 
 import {useHistory, useParams} from "react-router-dom"
 
+import '../../styles/PrivateChat.scss'
+import {Form} from "react-bootstrap";
+
 const PrivateChat = (props) => {
 
     const { polku } = useParams();
 
     const history = useHistory()
 
-    const [selectedOption, setSelectedOption] = useState(props.selectList[0].value)
+    const optionList = [
+        {
+            value: "uusin"
+        },
+        {
+            value: "vanhin"
+        }
+    ]
+
+    const [selectedOption, setSelectedOption] = useState(optionList[0].value)
 
     const [users, setUsers] = useState(props.users)
 
@@ -40,15 +52,11 @@ const PrivateChat = (props) => {
 
     const formRef = useRef(null)
 
-    const [messages, setMessages] = useState(props.messages)
+    const [messages, setMessages] = useState([])
 
-    const [messages2, setMessages2] = useState(props.messages2)
-
-    const [mainMessages, setMainMessages] = useState('')
+    const [messages2, setMessages2] = useState([])
 
     const [typing, setTyping] = useState(props.typing)
-
-    const [lajittelu, setLajittelu] = useState(1)
 
     const [nykyinenRivi, setNykyinenRivi] = useState(0)
 
@@ -57,6 +65,8 @@ const PrivateChat = (props) => {
     const [omaviesti, setOmaViesti] = useState('')
 
     const [haeLista, sethaeLista] = useState('')
+
+    const sisalto = useRef(null)
 
     const sendMessage = async event => {
 
@@ -136,15 +146,17 @@ const PrivateChat = (props) => {
         let r = window.confirm("Haluatko varmasti poistaa kaverin?");
         if (r == true) {
 
-            props.poistaKayttaja(id)
+           props.poistaKayttaja(id)
 
         }
 
     }
 
-    const selaa = (sivu) => {
+    const selaahandle = (sivu) => {
 
-        setActive(null)
+        console.log("selataan...")
+
+        setActive(false)
 
         /**
          * Jos käyttäjä klikkaa seuraavaa sivua niin nykyinen sivumäärä ei saa olla maksimisivumäärä ja nykyinensivumäärä on ykkönen tai sitä suurempi.
@@ -174,6 +186,7 @@ const PrivateChat = (props) => {
          * Jos nykyinensivumäärä on pienempi tai yhtäsuuri kuin ykkönen niin edellinen nappi poistetaan käytöstä.
          */
 
+
         if (nykyinenSivumaara <= 1) {
 
             setDisabled2(true)
@@ -196,7 +209,9 @@ const PrivateChat = (props) => {
 
         setValittuID(id)
 
-        props.haeKaveri(valittuID, false, lajittelu)
+        props.haeKaveri(id, false, selectedOption)
+
+
 
     }
 
@@ -208,7 +223,7 @@ const PrivateChat = (props) => {
 
         if (polku !== 'hae') {
 
-            history.push('/api/hae')
+        //    history.push('/api/hae')
 
         }
 
@@ -245,13 +260,13 @@ const PrivateChat = (props) => {
 
     }
 
-    const handleSelectOption = (value) => {
+    const handleSelectOption = (event) => {
 
-        setSelectedOption(value)
+        setSelectedOption(event.target.value)
 
-        setLajittelu(value)
+        console.log("valittu: " + valittuID + " ja " + event.target.value)
 
-        props.haeKaveri(valittuID, false, lajittelu)
+       props.haeKaveri(valittuID, false, event.target.value)
 
     }
 
@@ -266,12 +281,14 @@ const PrivateChat = (props) => {
          */
 
         // element should be replaced with the actual target element on which you have applied scroll, use window in case of no target element.
-        let content = this.$refs.sisalto;
+
+        let content = sisalto.current
+
         content.addEventListener("scroll", function () {
 
             if (content.scrollTop > 0 && content.scrollTop < 10) {
 
-                props.haeKaveri(valittuID, true, lajittelu)
+                props.haeKaveri(valittuID, true, selectedOption)
 
                 setNykyinenRivi(content.scrollHeight)
 
@@ -288,9 +305,9 @@ const PrivateChat = (props) => {
          * Kun uudet viestit on ladattu niin scrollataan käyttäjä alkuperäiseen paikkaan.
          */
 
-        this.$nextTick(function () {
+        process.nextTick(() => {
 
-            let container = this.$el.querySelector("#sisalto");
+            let container = document.querySelector("#sisalto");
 
             setAktiivinenRivi(container.scrollHeight - nykyinenRivi)
 
@@ -307,13 +324,13 @@ const PrivateChat = (props) => {
          * Kun uutta viestiä lähetetty scrollataan käyttäjä ihan alas asti.
          */
 
-        this.$nextTick(function () {
+        process.nextTick(() => {
 
             setNykyinenRivi(0)
 
             setAktiivinenRivi(0)
 
-            let container = this.$el.querySelector("#sisalto");
+            let container = document.querySelector("#sisalto");
 
             container.scrollTop = container.scrollHeight;
 
@@ -327,13 +344,13 @@ const PrivateChat = (props) => {
          * Tarkistetaan onko maksimisivumäärä 1, jotta ei turhaan viedä tyhjille sivuille.
          */
 
-        if (this.count == 1) {
+        if (count == 1) {
 
-            this.disabled = true;
+            setDisabled(true)
 
         } else {
 
-            this.disabled = false;
+            setDisabled(false)
         }
 
     }, [count])
@@ -346,7 +363,7 @@ const PrivateChat = (props) => {
 
         let totta = false
 
-        if (this.viesti == '') {
+        if (omaviesti == '') {
 
             totta = false
 
@@ -361,9 +378,30 @@ const PrivateChat = (props) => {
     }, [omaviesti])
 
 
+    const handleMessageChange = (event) => {
+
+        setOmaViesti(event.target.value)
+
+    }
+
+    /*
+     *  Paivitetaan viestien tilat jos tapahtuu muutos
+     */
+
+    useEffect(() => {
+
+        if (props.messages)
+            setMessages(props.messages)
+
+        if (props.messages2)
+            setMessages2(props.messages2)
+
+    },[props.messages, props.messages2])
+
+
     return (
         <div id="privatechat">
-            <section class="kaverilista">
+            <section className="kaverilista">
                 <section id="hakukentta">
                     <input disabled={users.length <= 0} type="text" onChange={handleHaeLista} value={haeLista}
                            placeholder="Hae kavereita"/> {haeLista && <p>Tuloksia löydetty : ({users.length})</p>}
@@ -371,22 +409,22 @@ const PrivateChat = (props) => {
                 {users.length > 0 &&
                     <section id="lista">
                         {users.map((user, index) =>
-                            <div key={"" + user.id}>
+                            <div key={index}>
                                 <button
-                                    onClick={poistaKayttaja(user.kayttaja_id == user.vastaanottaja_id ? user.vastaanottaja_id : user.lahettaja_id)}>🗑️
+                                    onClick={() => poistaKayttaja(user.kayttaja_id == user.vastaanottaja_id ? user.vastaanottaja_id : user.lahettaja_id)}>🗑️
                                 </button>
                                 <button className={`
                      ${index === active ? 'nayta' : ''}
                      ${paikalla.includes(user.vastaanottaja_id) || paikalla.includes(user.lahettaja_id) ? 'paikalla' : 'poissa'}
                      listapainikkeet
                 `} type="button"
-                                        onClick={haeKaveri(user.kayttaja_id == user.vastaanottaja_id ? user.vastaanottaja_id : user.lahettaja_id, index)}>{user.nimimerkki}</button>
+                                        onClick={() => haeKaveri(user.kayttaja_id == user.vastaanottaja_id ? user.vastaanottaja_id : user.lahettaja_id, index)}>{user.sahkoposti}</button>
                             </div>
                         )}
                     </section>
                 }
                 {haeLista == false && users.length <= 0 &&
-                    <section ClassName="eiloydy">
+                    <section className="eiloydy">
                         <h1>Sinulla ei ole kavereita! Lisää kaveri.</h1>
                     </section>
                 }
@@ -395,24 +433,30 @@ const PrivateChat = (props) => {
                         <h1>Kaveria ei löytynyt!</h1>
                     </section>
                 }
+
                 <section id="kentta_pohja">
                     <section id="sivupalkit">
                         <div>
                             <button
-                                onClick={selaa(setSivu(sivu - 8), setNykyinenSivuMaara(nykyinenSivumaara - 1))}
+                                onClick={() => selaahandle(setSivu(sivu - 8), setNykyinenSivuMaara(nykyinenSivumaara - 1))}
                                 disabled={disabled2} id="vasen">⬅
                             </button>
                             <p>{nykyinenSivumaara}/{count}</p>
-                            <button onClick={selaa(setSivu(sivu + 8), setNykyinenSivuMaara(nykyinenSivumaara + 1))}
-                                    disabled={disabled} id="oikea">➡
+                            <button
+                                onClick={() => selaahandle(setSivu(sivu + 8), setNykyinenSivuMaara(nykyinenSivumaara + 1))}
+                                disabled={disabled} id="oikea">➡
                             </button>
                         </div>
                     </section>
-                    <button id="lisaa" onClick={hakuLista()}>Lisää kaveri</button>
+                    <button id="lisaa" onClick={() => hakuLista()}>Lisää kaveri</button>
                 </section>
+
             </section>
+
             <section className="viestikentta">
-                <section id="sisalto" ref="sisalto">
+
+                <section id="sisalto" ref={sisalto}>
+
                     {valittuID == 0 && <h1>Aloita klikkaamalla kaveria!</h1>}
 
                     {id != '' && nayta && <h2>⬆ Hae viestejä rullaamalla ylös ⬆</h2>}
@@ -420,19 +464,46 @@ const PrivateChat = (props) => {
                     {id != '' && !nayta && messages2.length != 0 && messages.length >= 10 &&
                         <h3>⬇ Viestit loppuivat ⬇</h3>}
 
-                    {messages2.length == 0 ? setMainMessages(messages) : setMainMessages(messages2)}
-
-                    {mainMessages.map((message) =>
-                        <div key={"" + message.id} className={message.lahettaja_id == id ? 'oma' : 'toinen'}>
+                    {/* messages */}
+                    {messages2.length == 0 && messages.map((message, index) =>
+                        <div key={index} className={message.lahettaja_id == id ? 'oma' : 'toinen'} id="messages">
                             {message.lahettaja_id == id &&
                                 <button
-                                    onClick={poistaViesti(id == message.vastaanottaja_id ? message.lahettaja_id : message.vastaanottaja_id, message.sisalto)}
+                                    onClick={() => poistaViesti(id == message.vastaanottaja_id ? message.lahettaja_id : message.vastaanottaja_id, message.sisalto)}
                                     className="poisto">🗑️</button>
                             }
-                            <div class="ulko_sisalto">
+                            <div className="ulko_sisalto">
 
                                 {message.lahettaja_id != id &&
-                                    <p>{message.nimimerkki}</p>
+                                    <p>{message.sahkoposti}</p>
+                                }
+
+                                <div className="viesti_sisalto">
+                                    <p>{message.sisalto}</p>
+
+                                </div>
+
+                                <div className="aika">
+                                    <p>{aika(message.paivamaara)}</p>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    )}
+
+                    {/* messages2 */}
+                    {messages2.length !== 0 && messages2.map((message, index) =>
+                        <div key={index} className={message.lahettaja_id == id ? 'oma' : 'toinen'} id="messages2">
+                            {message.lahettaja_id == id &&
+                                <button
+                                    onClick={() => poistaViesti(id == message.vastaanottaja_id ? message.lahettaja_id : message.vastaanottaja_id, message.sisalto)}
+                                    className="poisto">🗑️</button>
+                            }
+                            <div className="ulko_sisalto">
+
+                                {message.lahettaja_id != id &&
+                                    <p>{message.sahkoposti}</p>
                                 }
 
                                 <div className="viesti_sisalto">
@@ -449,25 +520,27 @@ const PrivateChat = (props) => {
                         </div>
                     )}
                 </section>
+
                 {valittuID !== 0 &&
-                    <form noValidate ref={formRef} validated={validated} onSubmit={sendMessage} className="viesti">
+                    <Form noValidate ref={formRef} validated={validated} onSubmit={sendMessage} className="viesti">
                         {typing &&
                             <div id="kirjoittaa">Kaverisi kirjoittaa...</div>
                         }
-                        <input type="text" placeholder="Kirjoita viesti..."/>
+                        <input type="text" placeholder="Kirjoita viesti..." name="viestikentta" value={omaviesti} onChange={handleMessageChange} />
                         <button type="submit" id="laheta">Lähetä</button>
                         <select
                             name="users"
                             value={selectedOption}
-                            onChange={e => handleSelectOption(e.target.value)}>
-                            {props.selectList.map(o => (
-                                <option key={o.value} value={o.value}>{o.label}</option>
+                            onChange={handleSelectOption}>
+                            {optionList.map(o => (
+                                <option key={o.value} value={o.value}>{o.value}</option>
                             ))}
                         </select>
-                    </form>
+                    </Form>
                 }
             </section>
-        </div>
+</div>
+
     )
 }
 

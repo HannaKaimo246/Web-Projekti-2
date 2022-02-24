@@ -68,14 +68,14 @@ router.post("/api/postMessage", urlencodedParser, VerifyToken, function (req, re
  */
 
 
-router.get("/api/users", VerifyToken, function (req, res) {
+router.get("/api/users", VerifyToken,function (req, res) {
 
 
     /**
      * Select lauseella hakee kaikki hyväksytyt kaverilistalta jos omatunnus löytyy vastaanottaaja_id:ltä tai lahettaja_id:ltä.
      */
 
-    let sql = "SELECT kayttaja.kayttaja_id, kayttaja.nimimerkki, kaverilista.vastaanottaja_id, kaverilista.lahettaja_id FROM kaverilista, kayttaja WHERE kaverilista.hyvaksytty = ? AND ((kaverilista.vastaanottaja_id = kayttaja.kayttaja_id AND kaverilista.lahettaja_id = ?) OR (kaverilista.lahettaja_id = kayttaja.kayttaja_id AND kaverilista.vastaanottaja_id = ?)) LIMIT ? OFFSET ?";
+    let sql = "SELECT kayttaja.kayttaja_id, kayttaja.sahkoposti, kaverilista.vastaanottaja_id, kaverilista.lahettaja_id FROM kaverilista, kayttaja WHERE kaverilista.hyvaksytty = ? AND ((kaverilista.vastaanottaja_id = kayttaja.kayttaja_id AND kaverilista.lahettaja_id = ?) OR (kaverilista.lahettaja_id = kayttaja.kayttaja_id AND kaverilista.vastaanottaja_id = ?)) LIMIT ? OFFSET ?";
 
     /**
      * Sama kuin äskeinen sql lasue mutta laskee kaverit yhteen ja käytetään maksimisivumääränä selaimessa.
@@ -131,7 +131,7 @@ router.get("/api/userDetail", VerifyToken,
 })], function (req, res) {
 
         const errors = validationResult(req);
-        if (!errors.isEmpty()) {
+        if (!errors.isEmpty() || req.query.id == 0 || req.userData.id == 0) {
             return res.status(422).json({
                 success: false,
                 errors: errors.array()
@@ -145,13 +145,13 @@ router.get("/api/userDetail", VerifyToken,
          */
 
 
-        if (req.query.filter == 1) {
+        if (req.query.filter == 'uusin') {
 
-        sql = "SELECT kayttaja.nimimerkki, chat.sisalto, chat.lahettaja_id, chat.vastaanottaja_id, chat.paivamaara FROM chat, kayttaja WHERE (vastaanottaja_id = ? AND lahettaja_id = ? AND chat.vastaanottaja_id = kayttaja.kayttaja_id) OR (vastaanottaja_id = ? AND lahettaja_id = ? AND chat.lahettaja_id = kayttaja.kayttaja_id)  ORDER BY paivamaara DESC LIMIT ? OFFSET ?";
+        sql = "SELECT kayttaja.sahkoposti, chat.sisalto, chat.lahettaja_id, chat.vastaanottaja_id, chat.paivamaara FROM chat, kayttaja WHERE (vastaanottaja_id = ? AND lahettaja_id = ? AND chat.vastaanottaja_id = kayttaja.kayttaja_id) OR (vastaanottaja_id = ? AND lahettaja_id = ? AND chat.lahettaja_id = kayttaja.kayttaja_id)  ORDER BY paivamaara DESC LIMIT ? OFFSET ?";
 
     } else {
 
-        sql = "SELECT kayttaja.nimimerkki, chat.sisalto, chat.lahettaja_id, chat.vastaanottaja_id, chat.paivamaara FROM chat, kayttaja WHERE (vastaanottaja_id = ? AND lahettaja_id = ? AND chat.vastaanottaja_id = kayttaja.kayttaja_id) OR (vastaanottaja_id = ? AND lahettaja_id = ? AND chat.lahettaja_id = kayttaja.kayttaja_id)  ORDER BY paivamaara ASC LIMIT ? OFFSET ?";
+        sql = "SELECT kayttaja.sahkoposti, chat.sisalto, chat.lahettaja_id, chat.vastaanottaja_id, chat.paivamaara FROM chat, kayttaja WHERE (vastaanottaja_id = ? AND lahettaja_id = ? AND chat.vastaanottaja_id = kayttaja.kayttaja_id) OR (vastaanottaja_id = ? AND lahettaja_id = ? AND chat.lahettaja_id = kayttaja.kayttaja_id)  ORDER BY paivamaara ASC LIMIT ? OFFSET ?";
 
     }
 
@@ -165,6 +165,8 @@ router.get("/api/userDetail", VerifyToken,
              * Jos tietokanta kysely onnistui, näyteään viestit selaimessa
              */
 
+            console.log("tiedot: " + req.query.id + " ja " + req.userData.id + " seka " + req.query.page)
+
             return res.status(201).json({
                 success: true,
                 message: 'viestin tiedot onnistui!',
@@ -175,7 +177,7 @@ router.get("/api/userDetail", VerifyToken,
 
         }
         catch (err) {
-            console.log("Database error!"+ err);
+            console.log("Database error!"+ err + "1");
         }
     })()
 
