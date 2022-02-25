@@ -47,7 +47,7 @@ const PrivateChat = (props) => {
 
     const [messages2, setMessages2] = useState([])
 
-    const [typing, setTyping] = useState(props.typing)
+    const [typing, setTyping] = useState(false)
 
     const [nykyinenRivi, setNykyinenRivi] = useState(0)
 
@@ -56,6 +56,8 @@ const PrivateChat = (props) => {
     const [haeLista, sethaeLista] = useState('')
 
     const sisalto = useRef(null)
+
+    const [usersTyping, setUsersTyping] = useState([])
 
     const sendMessage = async event => {
 
@@ -92,13 +94,7 @@ const PrivateChat = (props) => {
 
     }
 
-    const handleHaeLista = (event) => {
-
-        /**
-         * Jos haku on tyhja niin jatketaan ja tarkistetaan ettei nykyinensivumäärä ole maksimisivumäärä eikä ykkönen. Jos ei pidä paikkansa niin sivu painikkeet poistetaan käytöstä.
-         */
-
-        sethaeLista(event.target.value)
+    useEffect(() => {
 
         if (haeLista == '') {
 
@@ -123,6 +119,16 @@ const PrivateChat = (props) => {
             props.haeLista(haeLista)
 
         }
+
+    },[haeLista])
+
+    const handleHaeLista = (event) => {
+
+        /**
+         * Jos haku on tyhja niin jatketaan ja tarkistetaan ettei nykyinensivumäärä ole maksimisivumäärä eikä ykkönen. Jos ei pidä paikkansa niin sivu painikkeet poistetaan käytöstä.
+         */
+
+        sethaeLista(event.target.value)
 
     }
 
@@ -354,19 +360,18 @@ const PrivateChat = (props) => {
 
         let totta = false
 
-        if (omaviesti == '') {
-
+        if (omaviesti !== '' && omaviesti != null)
             totta = false
-
-        } else {
-
-            totta = true
-
-        }
 
         props.viesti(omaviesti, totta)
 
     }, [omaviesti])
+
+    useEffect(() => {
+
+        setTyping(props.typing)
+
+    },[props.typing])
 
 
     const handleMessageChange = (event) => {
@@ -386,11 +391,41 @@ const PrivateChat = (props) => {
     },[props.messages2])
 
 
+    /*
+      * Naytetaan kayttajien sahkopostiosoitteet jos yksikin kirjoittaa.
+     */
+
+    useEffect(() => {
+
+        setUsersTyping(props.usersTyping)
+
+    },[props.usersTyping])
+
+    /*
+    *  Paivittaa kaverin poiston listalta
+     */
+
+    useEffect(() => {
+
+        setUsers(props.users)
+
+    },[props.users])
+
+    /*
+     *  Paivitetaan paikalla olevat kayttajat listaan
+     */
+
+    useEffect(() => {
+
+        setPaikalla(props.paikalla)
+
+    },[props.paikalla])
+
     return (
         <div id="privatechat">
             <section className="kaverilista">
                 <section id="hakukentta">
-                    <input disabled={users.length <= 0} type="text" onChange={handleHaeLista} value={haeLista}
+                    <input disabled={users.length <= 0 && !haeLista} type="text" onChange={handleHaeLista} value={haeLista}
                            placeholder="Hae kavereita"/> {haeLista && <p>Tuloksia löydetty : ({users.length})</p>}
                 </section>
                 {users.length > 0 &&
@@ -402,7 +437,7 @@ const PrivateChat = (props) => {
                                 </button>
                                 <button className={`
                      ${index === active ? 'nayta' : ''}
-                     ${paikalla.includes(user.vastaanottaja_id) || paikalla.includes(user.lahettaja_id) ? 'paikalla' : 'poissa'}
+                     ${paikalla.includes(user.kayttaja_id) ? 'paikalla' : 'poissa'}
                      listapainikkeet
                 `} type="button"
                                         onClick={() => haeKaveri(user.kayttaja_id == user.vastaanottaja_id ? user.vastaanottaja_id : user.lahettaja_id, index)}>{user.sahkoposti}</button>
@@ -446,9 +481,9 @@ const PrivateChat = (props) => {
 
                     {valittuID == 0 && <h1>Aloita klikkaamalla kaveria!</h1>}
 
-                    {id != '' && nayta && <h2>⬆ Hae viestejä rullaamalla ylös ⬆</h2>}
+                    {messages2.length != 0 && messages2.length % 10 == 0 && <h2>⬆ Hae viestejä rullaamalla ylös ⬆</h2>}
 
-                    {id != '' && !nayta && messages2.length != 0 && messages.length >= 10 &&
+                    {messages2.length != 0 && messages2.length % 10 !== 0 &&
                         <h3>⬇ Viestit loppuivat ⬇</h3>}
 
                     {/* messages2 */}
@@ -478,16 +513,13 @@ const PrivateChat = (props) => {
 
                         </div>
                     )}
-
-
-
                 </section>
 
                 {valittuID !== 0 &&
                     <Form noValidate ref={formRef} validated={validated} onSubmit={sendMessage} className="viesti">
-                        {typing &&
-                            <div id="kirjoittaa">Kaverisi kirjoittaa...</div>
-                        }
+                        {typing && usersTyping.map((user, index) =>
+                            <div key={index} id="kirjoittaa">{user} kirjoittaa...</div>
+                        )}
                         <input type="text" placeholder="Kirjoita viesti..." name="viestikentta" value={omaviesti} onChange={handleMessageChange} />
                         <button type="submit" id="laheta">Lähetä</button>
                         <select value={selectedOption} onChange={handleSelectOption}>

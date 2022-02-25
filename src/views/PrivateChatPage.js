@@ -4,14 +4,15 @@ import socketIOClient from "socket.io-client"
 import PrivateChat from "../components/Chat/PrivateChat";
 import axios from "axios";
 import {useAuth} from "../contexts/AuthContext";
-
 import '../styles/PrivateChatPage.scss'
 
 const PrivateChatPage = () => {
 
     const ENDPOINT = "http://localhost:8080"
 
-    const [user, setUser] = useState('ari')
+    const socket = socketIOClient(ENDPOINT)
+
+    const {user} = useAuth()
 
     const [messages, setMessages] = useState([])
 
@@ -41,11 +42,13 @@ const PrivateChatPage = () => {
 
     const [lataa, setLataa] = useState(false)
 
+    const [UsersTyping, setUsersTyping] = useState([])
+
+    const [poistettavaViesti, setPoistettavaViesti] = useState([])
+
     // Viestin poistaminen
 
     const poistaViesti = async (id, sisalto) => {
-
-        console.log("poisto tiedot:" + id + " ja " + sisalto)
 
         const tokenObject = localStorage.getItem('token')
 
@@ -59,49 +62,49 @@ const PrivateChatPage = () => {
             viesti: sisalto
         }
 
-            axios
-                .delete('http://localhost:8080/api/deleteUserMessage',
-                    { headers:{Authorization: 'Bearer: ' + token, deleteobject: JSON.stringify(userObject)} }
-                )
-                .then(async response => {
+        axios
+            .delete('http://localhost:8080/api/deleteUserMessage',
+                {headers: {Authorization: 'Bearer: ' + token, deleteobject: JSON.stringify(userObject)}}
+            )
+            .then(async response => {
 
-                    const data = await response.data
+                const data = await response.data
 
-                    if (response.status === 202) {
+                if (response.status === 200) {
 
-                        console.log("viesti poistettu: " + messages2.length);
+                    console.log("viesti poistettu: " + messages2.length);
 
-                        for (const property in messages2) {
-                            console.log(messages2[property].sisalto);
+                    let arr = [...messages2]
 
-                            if (messages2[property].sisalto == data.sisalto) {
+                    for (const property in arr) {
 
-                                messages2.splice(property, 1);
+                        if (arr[property].sisalto == data.sisalto) {
 
-                            }
+                            arr.splice(property, 1);
+
+                            setMessages2(arr)
 
                         }
 
-
-                            const socket = socketIOClient(ENDPOINT)
-                            socket.emit("deleteMessage", {
-                                "sisalto": data.sisalto,
-                                "vastaanottaja_id": data.tunnus,
-                                "lahettaja_id": data.oma
-                            });
-
-
-                    } else {
-
-                        console.log("ei ok")
-                        return Promise.reject(response.statusText);
-
                     }
 
-                }).catch(function (error) {
-                    console.log("tokenni: " + token)
-                    console.log("Virhe: " + error)
-                });
+                    socket.emit("deleteMessage", {
+                        "sisalto": data.sisalto,
+                        "vastaanottaja_id": data.tunnus
+                    });
+
+
+                } else {
+
+                    console.log("ei ok")
+                    return Promise.reject(response.statusText);
+
+                }
+
+            }).catch(function (error) {
+            console.log("tokenni: " + token)
+            console.log("Virhe: " + error)
+        });
 
     }
 
@@ -121,34 +124,42 @@ const PrivateChatPage = () => {
             tunnus: id
         }
 
-            axios.delete('http://localhost:8080/api/deleteUser', { headers:{Authorization: 'Bearer: ' + token, deleteobject: JSON.stringify(userObject)} }
-            ).then(async response => {
+        axios.delete('http://localhost:8080/api/deleteUser', {
+                headers: {
+                    Authorization: 'Bearer: ' + token,
+                    deleteobject: JSON.stringify(userObject)
+                }
+            }
+        ).then(response => {
 
-                    const data = await response.data
+            const data = response.data
 
-                    if (response.status === 200) {
+            if (response.status === 200) {
 
-                        for (const property in users) {
-                            console.log(users[property].vastaanottaja_id);
+                let arr = [...users]
 
-                            if (users[property].vastaanottaja_id == data.value) {
+                for (const property in arr) {
 
-                                users.splice(property, 1)
+                    if (arr[property].kayttaja_id === data.value) {
 
-                            }
+                        arr.splice(property, 1)
 
-                        }
-
-                    } else {
-
-                        console.log("ei ok")
-                        return Promise.reject(response.statusText);
+                        setUsers(arr)
 
                     }
 
-                }).catch(function (error) {
-                    console.log("Virhe: " + error)
-                });
+                }
+
+            } else {
+
+                console.log("ei ok")
+                return Promise.reject(response.statusText);
+
+            }
+
+        }).catch(function (error) {
+            console.log("Virhe: " + error)
+        });
 
 
     }
@@ -157,17 +168,15 @@ const PrivateChatPage = () => {
 
     const omaViesti = (value) => {
 
-            const socket = socketIOClient(ENDPOINT)
+        if (!id2)
+            return false
 
-            socket.emit("user-join", {
-                "id": id
-            });
+        socket.emit("privateTyping", {
+            "id2": id2,
+            "arvo": value,
+            "kayttaja": user.email
+        });
 
-            socket.emit("privateTyping", {
-                "id": id,
-                "id2": id2,
-                "arvo": value
-            });
 
     }
 
@@ -240,7 +249,7 @@ const PrivateChatPage = () => {
 
                     if (response.status === 201) {
 
-                       setMessages2(oldArray => [...oldArray,data.value] )
+                        setMessages2(oldArray => [...oldArray, data.value])
 
                         setSivut(sivut + 1)
 
@@ -248,16 +257,13 @@ const PrivateChatPage = () => {
 
                         // lähetetään tiedot vastaanottajalle
 
-
-                            const socket = socketIOClient(ENDPOINT);
-
-                            socket.emit("sendPrivateMessage", {
-                                "lahettaja_id": data.value.lahettaja_id,
-                                "vastaanottaja_id": data.value.vastaanottaja_id,
-                                "sisalto": data.value.sisalto,
-                                "paivamaara": data.value.paivamaara,
-                                "nimimerkki": data.value.sahkoposti
-                            });
+                        socket.emit("sendPrivateMessage", {
+                            "lahettaja_id": data.value.lahettaja_id,
+                            "vastaanottaja_id": data.value.vastaanottaja_id,
+                            "sisalto": data.value.sisalto,
+                            "paivamaara": data.value.paivamaara,
+                            "sahkoposti": data.value.sahkoposti
+                        });
 
 
                     } else {
@@ -293,6 +299,15 @@ const PrivateChatPage = () => {
             setSivut(0)
 
         }
+
+        if (id == null || id == '')
+            return
+        /**
+         * Tieto palvelimeen että oma käyttäjä on liittynyt privatechattiin.
+         */
+        socket.emit("user-join", {
+            "id": id
+        });
 
     }
 
@@ -355,24 +370,12 @@ const PrivateChatPage = () => {
                         // Liitytään roomiin
                         if (data.id != '' && data.id2 != '') {
 
-                            const socket = socketIOClient(ENDPOINT);
-
                             socket.emit("joinRoom", {
                                 "lahettaja_id": data.id,
                                 "vastaanottaja_id": data.id2
                             });
 
                         }
-
-                        /**
-                         * Tieto palvelimeen että oma käyttäjä on liittynyt privatechattiin.
-                         */
-
-                        const socket = socketIOClient(ENDPOINT)
-
-                        socket.emit("user-join", {
-                            "id": data.id
-                        });
 
                     } else {
 
@@ -382,16 +385,15 @@ const PrivateChatPage = () => {
                     }
 
                 }).catch(function (error) {
-                    console.log("Virhe: " + error)
-                });
+                console.log("Virhe: " + error)
+            });
 
         } catch (error) {
             console.log(error);
         }
 
 
-
-    },[lataa, id2])
+    }, [lataa, id2])
 
     // Haetaan listalta kayttajat
 
@@ -438,43 +440,52 @@ const PrivateChatPage = () => {
         }
     }
 
+    /*
+     * Socket
+     */
+
     useEffect(() => {
 
-        const socket = socketIOClient(ENDPOINT)
+        let arr = [...messages2]
+
+        for (const property in arr) {
+
+            if (arr[property].sisalto == poistettavaViesti.sisalto) {
+
+                arr.splice(property, 1);
+
+                setMessages2(arr)
+
+            }
+
+        }
+
+
+    }, [poistettavaViesti])
+
+
+    useEffect(() => {
 
         socket.on("PrivateMessageReceived", (data) => {
 
-            console.log("Lahetys: " + id2 + " ja " + data.vastaanottaja_id);
+            setMessages2(oldArray => [...oldArray, data])
 
-            if (id2 == data.vastaanottaja_id || id2 == data.lahettaja_id) {
+            setSivut(sivut + 1)
 
-                setMessages2(oldArray => [...oldArray,data] )
+            setMessages([])
 
-                setSivut(sivut + 1)
-
-                setMessages([])
-
-            }
         })
 
-        // poistetaan viesti
+        /*
+         * poistetaan viesti
+        */
 
         socket.on("deleteMessage", (data) => {
 
-            console.log("sisalto: " + JSON.stringify(data));
-
-            for (const property in messages2) {
-
-                if (messages2[property].sisalto == data.sisalto) {
-
-                    messages2.splice(property, 1);
-
-                }
-
-            }
-
+            setPoistettavaViesti(data)
 
         })
+
 
         /**
          * Kuunellaan että onko joku käyttäjä paikalla.
@@ -485,9 +496,9 @@ const PrivateChatPage = () => {
 
             console.log("tieto id: " + JSON.stringify(data));
 
-           if (id != data && !paikalla.includes(data)) {
+            if (id != data && !paikalla.includes(data)) {
 
-                setPaikalla(oldArray => [...oldArray,data] )
+                setPaikalla(oldArray => [...oldArray, data])
             }
 
         });
@@ -498,10 +509,12 @@ const PrivateChatPage = () => {
 
         socket.on('privateTyping', (value) => {
 
-            if (value) {
+            if (value.arvo) {
                 setTyping(true)
+                setUsersTyping(oldArray => [...oldArray, value.kayttaja])
             } else {
                 setTyping(false)
+                setUsersTyping([])
             }
 
         });
@@ -512,9 +525,17 @@ const PrivateChatPage = () => {
 
         socket.on('user-unjoin', (data) => {
 
-            let index = paikalla.indexOf(data);
+            if (data) {
 
-            paikalla.splice(index,1);
+                let arr = [...paikalla]
+
+                let index = arr.indexOf(data)
+
+                arr.splice(index, 1)
+
+                setPaikalla(arr)
+
+            }
 
         });
 
@@ -523,7 +544,6 @@ const PrivateChatPage = () => {
     useEffect(() => {
         (async () => { // IIFE (Immediately Invoked Function Expression)
 
-            const socket = socketIOClient(ENDPOINT)
             /**
              * Haetaan kavereita listalta.
              */
@@ -539,7 +559,7 @@ const PrivateChatPage = () => {
 
                 setTokenArvo(true)
 
-               await axios
+                await axios
                     .get(`http://localhost:8080/api/users?page=${0}`,
                         {headers: {Authorization: 'Bearer: ' + token}}
                     )
@@ -568,8 +588,7 @@ const PrivateChatPage = () => {
                             });
 
 
-
-                    } else {
+                        } else {
 
                             console.log("ei ok")
                             return Promise.reject(response.statusText);
@@ -592,30 +611,31 @@ const PrivateChatPage = () => {
     return (
         <div id="chat">
 
-                <header>
-                    <h1>PrivateChat</h1>
-                    <h3>Tervetuloa, {user}</h3>
-                </header>
+            <header>
+                <h1>PrivateChat</h1>
+                <h3>Tervetuloa, {user.email}</h3>
+            </header>
 
 
             {user && tokenArvo == true && loading &&
 
                 <PrivateChat
-                poistaViesti={poistaViesti}
-                poistaKayttaja={poistaKayttaja}
-                viesti={omaViesti}
-                typing={typing}
-                paikalla={paikalla}
-                count={count}
-                selaa={selaa}
-                haeLista={haeLista}
-                nayta={nayta}
-                messages={messages}
-                messages2={messages2}
-                id={id}
-                sendMessage={sendMessage}
-                haeKaveri={haeKaveri}
-                users={users}
+                    poistaViesti={poistaViesti}
+                    poistaKayttaja={poistaKayttaja}
+                    viesti={omaViesti}
+                    typing={typing}
+                    paikalla={paikalla}
+                    count={count}
+                    selaa={selaa}
+                    haeLista={haeLista}
+                    nayta={nayta}
+                    messages={messages}
+                    messages2={messages2}
+                    id={id}
+                    sendMessage={sendMessage}
+                    haeKaveri={haeKaveri}
+                    users={users}
+                    usersTyping={UsersTyping}
                 />
 
             }

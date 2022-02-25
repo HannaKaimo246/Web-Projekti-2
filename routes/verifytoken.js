@@ -19,8 +19,6 @@ function verifyToken(req, res, next) {
 
             req.userData = user
 
-            console.log("user (decoded) " + JSON.stringify(user))
-
             next()
         })
     }catch (err) {
