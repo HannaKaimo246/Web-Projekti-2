@@ -361,7 +361,7 @@ const PrivateChat = (props) => {
         let totta = false
 
         if (omaviesti !== '' && omaviesti != null)
-            totta = false
+            totta = true
 
         props.viesti(omaviesti, totta)
 
