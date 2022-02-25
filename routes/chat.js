@@ -50,7 +50,7 @@ router.post("/api/postMessage", urlencodedParser, VerifyToken, function (req, re
             return res.status(201).json({
                 success: true,
                 message: 'Viestin lisäys onnistui!',
-                value: {"vastaanottaja_id":req.body.vastaanottaja_id,"lahettaja_id":req.userData.id,"sisalto":req.body.viesti,"paivamaara":paivamaara,"nimimerkki":req.userData.user},
+                value: {"vastaanottaja_id":req.body.vastaanottaja_id,"lahettaja_id":req.userData.id,"sisalto":req.body.viesti,"paivamaara":paivamaara,"sahkoposti":req.userData.user},
                 id: req.userData.id
 
             })
@@ -193,7 +193,7 @@ router.get("/api/searchFriends", VerifyToken, function (req, res) {
      * Ensiksi haetaan omat kaverit sql lauseesta ja lopuksi rajoitetaan haun nimimerkin mukaan. 8 hakua näyetään maksimissa.
      */
 
-    var sql = "SELECT kayttaja.kayttaja_id, kayttaja.nimimerkki, kaverilista.vastaanottaja_id, kaverilista.lahettaja_id FROM kaverilista, kayttaja WHERE kaverilista.hyvaksytty = ? AND ((kaverilista.vastaanottaja_id = kayttaja.kayttaja_id AND kaverilista.lahettaja_id = ?) OR (kaverilista.lahettaja_id = kayttaja.kayttaja_id AND kaverilista.vastaanottaja_id = ?)) AND kayttaja.nimimerkki LIKE ? LIMIT ?";
+    var sql = "SELECT kayttaja.kayttaja_id, kayttaja.sahkoposti, kaverilista.vastaanottaja_id, kaverilista.lahettaja_id FROM kaverilista, kayttaja WHERE kaverilista.hyvaksytty = ? AND ((kaverilista.vastaanottaja_id = kayttaja.kayttaja_id AND kaverilista.lahettaja_id = ?) OR (kaverilista.lahettaja_id = kayttaja.kayttaja_id AND kaverilista.vastaanottaja_id = ?)) AND kayttaja.sahkoposti LIKE ? LIMIT ?";
 
 
 
@@ -205,7 +205,7 @@ router.get("/api/searchFriends", VerifyToken, function (req, res) {
              * Jos haku kysely onnistui, näyteään haku tulos selaimessa.
              */
 
-            return res.status(200).json({
+            res.status(200).json({
                 success: true,
                 message: 'Listan näyttäminen onnistui!',
                 userdata: rows
