@@ -50,7 +50,7 @@ const NavBar = () => {
                     </li>
                     {user &&
                         <li>
-                            <Link className="navstyles" to="/api/privatechat">Private Chat<i
+                            <Link className="navstyles" to="/api/privatechat">Chat<i
                                 className="ion-md-chatbubbles"/></Link>
                         </li>
                     }

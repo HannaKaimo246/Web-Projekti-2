@@ -199,14 +199,22 @@ router.get("/api/check", VerifyToken, function (req, res) {
 
 router.get("/api/search", VerifyToken, function (req, res) {
 
-    let sql = "SELECT kayttaja.kayttaja_id, kayttaja.nimimerkki FROM kayttaja LEFT JOIN kaverilista ON (kayttaja.kayttaja_id = kaverilista.lahettaja_id  AND kaverilista.vastaanottaja_id = ?) OR (kayttaja.kayttaja_id = kaverilista.vastaanottaja_id  AND kaverilista.lahettaja_id = ?) WHERE kayttaja.kayttaja_id != ? AND kaverilista.kaveri_id IS NULL AND kayttaja.nimimerkki LIKE ? LIMIT ? ";
+
+        let sql = "SELECT kayttaja.kayttaja_id, kaverilista.hyvaksytty, kayttaja.sahkoposti FROM kayttaja LEFT JOIN kaverilista ON (kayttaja.kayttaja_id = kaverilista.lahettaja_id AND kaverilista.vastaanottaja_id = ?) OR (kayttaja.kayttaja_id = kaverilista.vastaanottaja_id  AND kaverilista.lahettaja_id = ?) WHERE kayttaja.kayttaja_id != ? AND (kaverilista.hyvaksytty = ? OR kaverilista.hyvaksytty IS NULL) LIMIT ?";
+
+        let sql2 = "SELECT kayttaja.kayttaja_id, kaverilista.hyvaksytty, kayttaja.sahkoposti FROM kayttaja LEFT JOIN kaverilista ON (kayttaja.kayttaja_id = kaverilista.lahettaja_id AND kaverilista.vastaanottaja_id = ?) OR (kayttaja.kayttaja_id = kaverilista.vastaanottaja_id  AND kaverilista.lahettaja_id = ?) WHERE kayttaja.kayttaja_id != ? AND (kaverilista.hyvaksytty = ? OR kaverilista.hyvaksytty IS NULL) AND kayttaja.sahkoposti LIKE ? LIMIT ?";
+
+        let rows;
 
     (async () => {
         try {
+            if (req.query.name == '') {
+                rows = await query(sql,[req.userData.id, req.userData.id, req.userData.id, 0, 10]);
+            } else {
+                rows = await query(sql2,[req.userData.id, req.userData.id, req.userData.id, 0, '%' + req.query.name + '%', 10]);
+            }
 
-            const rows = await query(sql,[req.userData.id, req.userData.id, req.userData.id, '%' + req.query.name + '%', 10]);
-
-            return res.status(200).json({
+            res.status(200).json({
                 success: true,
                 message: 'Haku onnistui!',
                 userdata: rows
@@ -264,19 +272,11 @@ router.post("/api/invites", urlencodedParser, VerifyToken,
 
                     await query(sql, [jsonObj.vastaanottaja, req.userData.id, 0]);
 
-
-
-                    return res.status(200).json({
-                        success: true,
-                        message: 'Kutsu onnistui!'
-                    })
+                    res.status(201).json()
                 }
 
 
-                return res.status(403).json({
-                    success: true,
-                    message: 'Kutsu epäonnistui!'
-                })
+                res.status(403).send()
 
 
             }
@@ -293,7 +293,7 @@ router.post("/api/invites", urlencodedParser, VerifyToken,
 /**
  * Seuraava toiminto hakee jokaisen käyttäjän kannasta ja selaimessa laittaa tiedot selaus listaan käyttäjälista sivulla.
  */
-
+/*
 router.get("/api/search/users", VerifyToken, function (req, res) {
 
     let arvo = req.query.filter;
@@ -332,7 +332,7 @@ router.get("/api/search/users", VerifyToken, function (req, res) {
         }
     })()
 });
-
+*/
 
 /**
  * Seuraava toiminto käsittelee käyttäjän saapuneita kutsuja.
@@ -373,30 +373,22 @@ router.delete("/api/deleteInvite", VerifyToken, function (req, res) {
 
     let  sql = "DELETE FROM kaverilista WHERE vastaanottaja_id = ? AND lahettaja_id = ?";
 
-    console.log("eka: " + req.body.tunnus);
-
-    console.log("toka: " + req.userData.id);
 
     (async () => {
         try {
 
-           const rows  = await query(sql,[req.body.tunnus, req.userData.id]);
+            const deleteObject = JSON.parse(req.headers['deleteobject'])
+
+           const rows  = await query(sql,[deleteObject.vastaanottaja, req.userData.id]);
 
 
             if (rows) {
 
-                return res.status(200).json({
-                    success: true,
-                    message: 'poisto onnistui!',
-                    id: req.body.tunnus
-                })
+                res.status(201).send()
 
             } else {
 
-                return res.status(401).json({
-                    success: false,
-                    message: 'poisto epäonnistui!'
-                })
+                res.status(401).send()
 
             }
 

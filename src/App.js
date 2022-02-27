@@ -27,6 +27,8 @@ import Navbar from "./components/Home/NavBar"
 
 import Map from "./views/MapPage"
 
+import Search from "./components/Chat/UserList"
+
 const App = () => {
 
     // The back-to-top button is hidden at the beginning
@@ -57,7 +59,8 @@ const App = () => {
                 <Navbar />
                 <Switch>
                     <PrivateRoute exact path="/api/settings" component={Settings} />
-                     <Route path="/api/privatechat" component={PrivateChatPage} />
+                    <PrivateRoute exact path="/api/hae" component={Search} />
+                    <PrivateRoute exact path="/api/privatechat" component={PrivateChatPage} />
                     <Route path="/api/user/:id" component={UserPage} />
                     <Route path="/api/forgot-password" component={ForgotPassword} />
                     <Route path="/api/loginList" component={LoginList} />
