@@ -29,6 +29,8 @@ import Map from "./views/MapPage"
 
 import Search from "./components/Chat/UserList"
 
+import InvitationList from "./components/Chat/Invite"
+
 const App = () => {
 
     // The back-to-top button is hidden at the beginning
@@ -61,6 +63,7 @@ const App = () => {
                     <PrivateRoute exact path="/api/settings" component={Settings} />
                     <PrivateRoute exact path="/api/hae" component={Search} />
                     <PrivateRoute exact path="/api/privatechat" component={PrivateChatPage} />
+                    <PrivateRoute exact path="/api/invites" component={InvitationList} />
                     <Route path="/api/user/:id" component={UserPage} />
                     <Route path="/api/forgot-password" component={ForgotPassword} />
                     <Route path="/api/loginList" component={LoginList} />

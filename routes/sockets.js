@@ -1,7 +1,7 @@
 const Sockets = (io) => {
 
     /**
-     * Sockets käytetään chatin realiaikaiseen viestimiseen ja kartassa markkerin realiaikaiseen päivittämiseen.
+     * Socket käytetään chatin realiaikaiseen viestimiseen, ilmoituksien saamiseen ja kartassa markkerin realiaikaiseen päivittämiseen.
      */
 
     /**
@@ -36,6 +36,29 @@ const Sockets = (io) => {
 
         });
 
+        /**
+         * Seuraava toiminto lisää yhden kutsu ilmoituksen kaverille
+         */
+
+        socket.on('addNotifications', value => {
+
+            console.log("id: " + value.id)
+
+            socket.to(value.id).emit("addNotifications", value);
+
+
+        });
+
+        /**
+         * Seuraava toiminto poistaa yhden kutsu ilmoituksen kaverille
+         */
+
+        socket.on('removeNotifications', value => {
+
+            socket.to(value.id).to(value.tunnus).emit("removeNotifications", value);
+
+
+        });
 
         /**
          * Seuraava toiminto lisää käyttäjän onlineen openchatissa.
