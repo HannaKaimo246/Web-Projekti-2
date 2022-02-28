@@ -186,9 +186,8 @@ router.post("/api/register", urlencodedParser,
 
 router.get("/api/check", VerifyToken, function (req, res) {
 
-    res.send({
-        user: req.userData.user,
-        time: req.userData.exp
+    res.json({
+        value: req.userData
     });
 
 });
@@ -199,14 +198,22 @@ router.get("/api/check", VerifyToken, function (req, res) {
 
 router.get("/api/search", VerifyToken, function (req, res) {
 
-    let sql = "SELECT kayttaja.kayttaja_id, kayttaja.nimimerkki FROM kayttaja LEFT JOIN kaverilista ON (kayttaja.kayttaja_id = kaverilista.lahettaja_id  AND kaverilista.vastaanottaja_id = ?) OR (kayttaja.kayttaja_id = kaverilista.vastaanottaja_id  AND kaverilista.lahettaja_id = ?) WHERE kayttaja.kayttaja_id != ? AND kaverilista.kaveri_id IS NULL AND kayttaja.nimimerkki LIKE ? LIMIT ? ";
+
+        let sql = "SELECT kayttaja.kayttaja_id, kaverilista.hyvaksytty, kayttaja.sahkoposti FROM kayttaja LEFT JOIN kaverilista ON (kayttaja.kayttaja_id = kaverilista.lahettaja_id AND kaverilista.vastaanottaja_id = ?) OR (kayttaja.kayttaja_id = kaverilista.vastaanottaja_id  AND kaverilista.lahettaja_id = ?) WHERE kayttaja.kayttaja_id != ? AND (kaverilista.hyvaksytty = ? OR kaverilista.hyvaksytty IS NULL) LIMIT ?";
+
+        let sql2 = "SELECT kayttaja.kayttaja_id, kaverilista.hyvaksytty, kayttaja.sahkoposti FROM kayttaja LEFT JOIN kaverilista ON (kayttaja.kayttaja_id = kaverilista.lahettaja_id AND kaverilista.vastaanottaja_id = ?) OR (kayttaja.kayttaja_id = kaverilista.vastaanottaja_id  AND kaverilista.lahettaja_id = ?) WHERE kayttaja.kayttaja_id != ? AND (kaverilista.hyvaksytty = ? OR kaverilista.hyvaksytty IS NULL) AND kayttaja.sahkoposti LIKE ? LIMIT ?";
+
+        let rows;
 
     (async () => {
         try {
+            if (req.query.name == '') {
+                rows = await query(sql,[req.userData.id, req.userData.id, req.userData.id, 0, 10]);
+            } else {
+                rows = await query(sql2,[req.userData.id, req.userData.id, req.userData.id, 0, '%' + req.query.name + '%', 10]);
+            }
 
-            const rows = await query(sql,[req.userData.id, req.userData.id, req.userData.id, '%' + req.query.name + '%', 10]);
-
-            return res.status(200).json({
+            res.status(200).json({
                 success: true,
                 message: 'Haku onnistui!',
                 userdata: rows
@@ -264,19 +271,13 @@ router.post("/api/invites", urlencodedParser, VerifyToken,
 
                     await query(sql, [jsonObj.vastaanottaja, req.userData.id, 0]);
 
-
-
-                    return res.status(200).json({
-                        success: true,
-                        message: 'Kutsu onnistui!'
+                    res.status(201).json({
+                        id: jsonObj.vastaanottaja
                     })
                 }
 
 
-                return res.status(403).json({
-                    success: true,
-                    message: 'Kutsu epäonnistui!'
-                })
+                res.status(403).send("Kutsun lähettämisessä tapahtui virhe!")
 
 
             }
@@ -293,7 +294,7 @@ router.post("/api/invites", urlencodedParser, VerifyToken,
 /**
  * Seuraava toiminto hakee jokaisen käyttäjän kannasta ja selaimessa laittaa tiedot selaus listaan käyttäjälista sivulla.
  */
-
+/*
 router.get("/api/search/users", VerifyToken, function (req, res) {
 
     let arvo = req.query.filter;
@@ -332,7 +333,7 @@ router.get("/api/search/users", VerifyToken, function (req, res) {
         }
     })()
 });
-
+*/
 
 /**
  * Seuraava toiminto käsittelee käyttäjän saapuneita kutsuja.
@@ -373,30 +374,22 @@ router.delete("/api/deleteInvite", VerifyToken, function (req, res) {
 
     let  sql = "DELETE FROM kaverilista WHERE vastaanottaja_id = ? AND lahettaja_id = ?";
 
-    console.log("eka: " + req.body.tunnus);
-
-    console.log("toka: " + req.userData.id);
 
     (async () => {
         try {
 
-           const rows  = await query(sql,[req.body.tunnus, req.userData.id]);
+            const deleteObject = JSON.parse(req.headers['deleteobject'])
+
+           const rows  = await query(sql,[deleteObject.vastaanottaja, req.userData.id]);
 
 
             if (rows) {
 
-                return res.status(200).json({
-                    success: true,
-                    message: 'poisto onnistui!',
-                    id: req.body.tunnus
-                })
+                res.status(201).send()
 
             } else {
 
-                return res.status(401).json({
-                    success: false,
-                    message: 'poisto epäonnistui!'
-                })
+                res.status(401).send()
 
             }
 
@@ -419,23 +412,17 @@ router.delete("/api/deleteInvite2", VerifyToken, function (req, res) {
     (async () => {
         try {
 
-            const rows  = await query(sql,[req.userData.id, req.body.tunnus]);
+            const deleteObject = JSON.parse(req.headers['deleteobject'])
 
+            const rows  = await query(sql,[req.userData.id, deleteObject.vastaanottaja]);
 
             if (rows) {
 
-                return res.status(200).json({
-                    success: true,
-                    message: 'poisto onnistui!',
-                    id: req.body.tunnus
-                })
+                res.status(200).send('poisto onnistui!')
 
             } else {
 
-                return res.status(401).json({
-                    success: false,
-                    message: 'poisto epäonnistui!'
-                })
+                res.status(401).send('poisto epäonnistui!')
 
             }
 
@@ -457,7 +444,7 @@ router.get("/api/receiveInvites", VerifyToken, function (req, res) {
 
 
 
-    let sql = "SELECT kaverilista.vastaanottaja_id, kaverilista.lahettaja_id, kayttaja.nimimerkki FROM kaverilista, kayttaja WHERE kaverilista.lahettaja_id = kayttaja.kayttaja_id AND kaverilista.vastaanottaja_id = ? AND kayttaja.kayttaja_id != ? AND kaverilista.hyvaksytty = ?";
+    let sql = "SELECT kayttaja.kayttaja_id, kaverilista.vastaanottaja_id, kaverilista.lahettaja_id, kayttaja.sahkoposti FROM kaverilista, kayttaja WHERE kaverilista.lahettaja_id = kayttaja.kayttaja_id AND kaverilista.vastaanottaja_id = ? AND kayttaja.kayttaja_id != ? AND kaverilista.hyvaksytty = ?";
 
 
 
@@ -466,7 +453,7 @@ router.get("/api/receiveInvites", VerifyToken, function (req, res) {
 
             const rows = await query(sql,[req.userData.id, req.userData.id, 0]);
 
-            return res.status(200).json({
+            res.status(200).json({
                 success: true,
                 message: 'hakeminen onnistui!',
                 userdata: rows
@@ -496,11 +483,11 @@ router.put("/api/acceptInvite", urlencodedParser, VerifyToken, function (req, re
     (async () => {
         try {
 
-            await query(sql2,[ req.body.tunnus, req.userData.id]);
+            await query(sql2,[req.body.tunnus, req.userData.id]);
 
             await query(sql,[1, req.userData.id, req.body.tunnus]);
 
-                return res.status(200).json({
+                res.status(200).json({
                     success: true,
                     message: 'päivitys onnistui!',
                     id: req.body.tunnus

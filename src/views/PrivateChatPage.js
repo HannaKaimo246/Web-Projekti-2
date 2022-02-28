@@ -52,10 +52,11 @@ const PrivateChatPage = () => {
 
         const tokenObject = localStorage.getItem('token')
 
+        if (tokenObject == null)
+            return false
+
         let token = JSON.parse(tokenObject).token;
 
-        if (token == null)
-            return false
 
         const userObject = {
             tunnus: id,
@@ -115,10 +116,10 @@ const PrivateChatPage = () => {
 
         const tokenObject = localStorage.getItem('token')
 
-        let token = JSON.parse(tokenObject).token;
-
-        if (token == null)
+        if (tokenObject == null)
             return false
+
+        let token = JSON.parse(tokenObject).token;
 
         const userObject = {
             tunnus: id
@@ -186,10 +187,11 @@ const PrivateChatPage = () => {
 
         const tokenObject = localStorage.getItem('token')
 
+        if (tokenObject == null)
+            return false
+
         let token = JSON.parse(tokenObject).token
 
-        if (token == null)
-            return false
 
         try {
 
@@ -227,10 +229,10 @@ const PrivateChatPage = () => {
 
         const tokenObject = localStorage.getItem('token')
 
-        let token = JSON.parse(tokenObject).token;
-
-        if (token == null)
+        if (tokenObject == null)
             return false
+
+        let token = JSON.parse(tokenObject).token;
 
         const messageObject = {
             viesti: viesti,
@@ -318,10 +320,10 @@ const PrivateChatPage = () => {
 
         const tokenObject = localStorage.getItem('token')
 
-        let token = JSON.parse(tokenObject).token;
-
-        if (token == null || filter == '' || id2 == '')
+        if (tokenObject == null || filter == '' || id2 == '')
             return false
+
+        let token = JSON.parse(tokenObject).token;
 
         try {
 
@@ -405,10 +407,12 @@ const PrivateChatPage = () => {
 
         const tokenObject = localStorage.getItem('token')
 
+        if (tokenObject == null)
+            return false
+
         let token = JSON.parse(tokenObject).token;
 
-        if (token == null)
-            return false
+
 
         try {
 
@@ -550,10 +554,11 @@ const PrivateChatPage = () => {
 
             const tokenObject = localStorage.getItem('token')
 
+            if (tokenObject == null)
+                return false
+
             let token = JSON.parse(tokenObject).token;
 
-            if (token == null)
-                return false
 
             try {
 

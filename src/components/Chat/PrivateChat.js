@@ -218,7 +218,7 @@ const PrivateChat = (props) => {
 
         if (polku !== 'hae') {
 
-        //    history.push('/api/hae')
+            history.push('/api/hae')
 
         }
 
