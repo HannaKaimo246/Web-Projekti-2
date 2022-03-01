@@ -47,10 +47,10 @@ router.post("/api/postMessage", urlencodedParser, VerifyToken, function (req, re
              * Jos tietokanta kysely onnistui niin palautetaan selaimeen status 200 ja luodut tiedot.
              */
 
-            return res.status(200).json({
+            return res.status(201).json({
                 success: true,
                 message: 'Viestin lisäys onnistui!',
-                value: {"vastaanottaja_id":req.body.vastaanottaja_id,"lahettaja_id":req.userData.id,"sisalto":req.body.viesti,"paivamaara":paivamaara,"nimimerkki":req.userData.user},
+                value: {"vastaanottaja_id":req.body.vastaanottaja_id,"lahettaja_id":req.userData.id,"sisalto":req.body.viesti,"paivamaara":paivamaara,"sahkoposti":req.userData.user},
                 id: req.userData.id
 
             })
@@ -75,7 +75,7 @@ router.get("/api/users", VerifyToken, function (req, res) {
      * Select lauseella hakee kaikki hyväksytyt kaverilistalta jos omatunnus löytyy vastaanottaaja_id:ltä tai lahettaja_id:ltä.
      */
 
-    let sql = "SELECT kayttaja.kayttaja_id, kayttaja.nimimerkki, kaverilista.vastaanottaja_id, kaverilista.lahettaja_id FROM kaverilista, kayttaja WHERE kaverilista.hyvaksytty = ? AND ((kaverilista.vastaanottaja_id = kayttaja.kayttaja_id AND kaverilista.lahettaja_id = ?) OR (kaverilista.lahettaja_id = kayttaja.kayttaja_id AND kaverilista.vastaanottaja_id = ?)) LIMIT ? OFFSET ?";
+    let sql = "SELECT kayttaja.kayttaja_id, kayttaja.sahkoposti, kaverilista.vastaanottaja_id, kaverilista.lahettaja_id FROM kaverilista, kayttaja WHERE kaverilista.hyvaksytty = ? AND ((kaverilista.vastaanottaja_id = kayttaja.kayttaja_id AND kaverilista.lahettaja_id = ?) OR (kaverilista.lahettaja_id = kayttaja.kayttaja_id AND kaverilista.vastaanottaja_id = ?)) LIMIT ? OFFSET ?";
 
     /**
      * Sama kuin äskeinen sql lasue mutta laskee kaverit yhteen ja käytetään maksimisivumääränä selaimessa.
@@ -86,6 +86,7 @@ router.get("/api/users", VerifyToken, function (req, res) {
 
     (async () => { // IIFE (Immediately Invoked Function Expression)
         try {
+
             const rows = await query(sql,[1, req.userData.id, req.userData.id, 8, parseInt(req.query.page)]);
 
             const rows2 = await query(sql2,[1, req.userData.id, req.userData.id]);
@@ -104,7 +105,7 @@ router.get("/api/users", VerifyToken, function (req, res) {
 
         }
         catch (err) {
-            console.log("Database error!"+ err);
+            console.log("Database error! api/users " + err);
         }
     })()
 
@@ -131,7 +132,7 @@ router.get("/api/userDetail", VerifyToken,
 })], function (req, res) {
 
         const errors = validationResult(req);
-        if (!errors.isEmpty()) {
+        if (!errors.isEmpty() || req.query.id == 0 || req.userData.id == 0) {
             return res.status(422).json({
                 success: false,
                 errors: errors.array()
@@ -145,13 +146,13 @@ router.get("/api/userDetail", VerifyToken,
          */
 
 
-        if (req.query.filter == 1) {
+        if (req.query.filter == 'uusin') {
 
-        sql = "SELECT kayttaja.nimimerkki, chat.sisalto, chat.lahettaja_id, chat.vastaanottaja_id, chat.paivamaara FROM chat, kayttaja WHERE (vastaanottaja_id = ? AND lahettaja_id = ? AND chat.vastaanottaja_id = kayttaja.kayttaja_id) OR (vastaanottaja_id = ? AND lahettaja_id = ? AND chat.lahettaja_id = kayttaja.kayttaja_id)  ORDER BY paivamaara DESC LIMIT ? OFFSET ?";
+        sql = "SELECT kayttaja.sahkoposti, chat.sisalto, chat.lahettaja_id, chat.vastaanottaja_id, chat.paivamaara FROM chat, kayttaja WHERE (vastaanottaja_id = ? AND lahettaja_id = ? AND chat.vastaanottaja_id = kayttaja.kayttaja_id) OR (vastaanottaja_id = ? AND lahettaja_id = ? AND chat.lahettaja_id = kayttaja.kayttaja_id)  ORDER BY paivamaara DESC LIMIT ? OFFSET ?";
 
     } else {
 
-        sql = "SELECT kayttaja.nimimerkki, chat.sisalto, chat.lahettaja_id, chat.vastaanottaja_id, chat.paivamaara FROM chat, kayttaja WHERE (vastaanottaja_id = ? AND lahettaja_id = ? AND chat.vastaanottaja_id = kayttaja.kayttaja_id) OR (vastaanottaja_id = ? AND lahettaja_id = ? AND chat.lahettaja_id = kayttaja.kayttaja_id)  ORDER BY paivamaara ASC LIMIT ? OFFSET ?";
+        sql = "SELECT kayttaja.sahkoposti, chat.sisalto, chat.lahettaja_id, chat.vastaanottaja_id, chat.paivamaara FROM chat, kayttaja WHERE (vastaanottaja_id = ? AND lahettaja_id = ? AND chat.vastaanottaja_id = kayttaja.kayttaja_id) OR (vastaanottaja_id = ? AND lahettaja_id = ? AND chat.lahettaja_id = kayttaja.kayttaja_id)  ORDER BY paivamaara ASC LIMIT ? OFFSET ?";
 
     }
 
@@ -165,7 +166,7 @@ router.get("/api/userDetail", VerifyToken,
              * Jos tietokanta kysely onnistui, näyteään viestit selaimessa
              */
 
-            return res.status(200).json({
+           res.status(201).json({
                 success: true,
                 message: 'viestin tiedot onnistui!',
                 userdata: rows,
@@ -175,7 +176,7 @@ router.get("/api/userDetail", VerifyToken,
 
         }
         catch (err) {
-            console.log("Database error!"+ err);
+            console.log("Database error!"+ err + "1");
         }
     })()
 
@@ -192,7 +193,7 @@ router.get("/api/searchFriends", VerifyToken, function (req, res) {
      * Ensiksi haetaan omat kaverit sql lauseesta ja lopuksi rajoitetaan haun nimimerkin mukaan. 8 hakua näyetään maksimissa.
      */
 
-    var sql = "SELECT kayttaja.kayttaja_id, kayttaja.nimimerkki, kaverilista.vastaanottaja_id, kaverilista.lahettaja_id FROM kaverilista, kayttaja WHERE kaverilista.hyvaksytty = ? AND ((kaverilista.vastaanottaja_id = kayttaja.kayttaja_id AND kaverilista.lahettaja_id = ?) OR (kaverilista.lahettaja_id = kayttaja.kayttaja_id AND kaverilista.vastaanottaja_id = ?)) AND kayttaja.nimimerkki LIKE ? LIMIT ?";
+    var sql = "SELECT kayttaja.kayttaja_id, kayttaja.sahkoposti, kaverilista.vastaanottaja_id, kaverilista.lahettaja_id FROM kaverilista, kayttaja WHERE kaverilista.hyvaksytty = ? AND ((kaverilista.vastaanottaja_id = kayttaja.kayttaja_id AND kaverilista.lahettaja_id = ?) OR (kaverilista.lahettaja_id = kayttaja.kayttaja_id AND kaverilista.vastaanottaja_id = ?)) AND kayttaja.sahkoposti LIKE ? LIMIT ?";
 
 
 
@@ -204,7 +205,7 @@ router.get("/api/searchFriends", VerifyToken, function (req, res) {
              * Jos haku kysely onnistui, näyteään haku tulos selaimessa.
              */
 
-            return res.status(200).json({
+            res.status(200).json({
                 success: true,
                 message: 'Listan näyttäminen onnistui!',
                 userdata: rows
@@ -238,18 +239,21 @@ router.delete("/api/deleteUser", VerifyToken, function (req, res) {
 
     (async () => { // IIFE (Immediately Invoked Function Expression)
         try {
-            await query(sql,[req.userData.id, req.body.tunnus, req.body.tunnus, req.userData.id]);
 
-            await query(sql2,[req.userData.id, req.body.tunnus, req.body.tunnus, req.userData.id]);
+            const deleteObject = JSON.parse(req.headers['deleteobject'])
+
+            await query(sql,[req.userData.id, deleteObject.tunnus, deleteObject.tunnus, req.userData.id]);
+
+            await query(sql2,[req.userData.id, deleteObject.tunnus, deleteObject.tunnus, req.userData.id]);
 
             /**
              * Jos sql poisto kysely onnistui, läheteään onnistunut status selaimeen.
              */
 
-            return res.status(200).json({
+            res.status(200).json({
                 success: true,
                 message: 'Poisto onnistui!',
-                value: req.body.tunnus
+                value: deleteObject.tunnus
             })
 
         }
@@ -275,19 +279,23 @@ router.delete("/api/deleteUserMessage", VerifyToken, function (req, res) {
     (async () => { // IIFE (Immediately Invoked Function Expression)
         try {
 
-            await query(sql,[req.userData.id, req.body.tunnus, req.body.tunnus, req.userData.id, req.body.viesti]);
+            const deleteObject = JSON.parse(req.headers['deleteobject'])
 
-            return res.status(200).json({
+            console.log(deleteObject.viesti)
+
+            await query(sql,[req.userData.id, deleteObject.tunnus, deleteObject.tunnus, req.userData.id, deleteObject.viesti]);
+
+            res.status(200).json({
                 success: true,
                 message: 'Poisto onnistui!',
-                tunnus: req.body.tunnus,
-                sisalto: req.body.viesti,
+                tunnus: deleteObject.tunnus,
+                sisalto: deleteObject.viesti,
                 oma: req.userData.id
             })
 
         }
         catch (err) {
-            console.log("Database error!"+ err);
+            console.log("Database error! 123 "+ err);
         }
     })()
 

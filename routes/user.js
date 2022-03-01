@@ -4,15 +4,15 @@ const router = express.Router();
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 router.use(cors());
-var jwt = require('jsonwebtoken');
-var config = require('./config');
-var VerifyToken = require('./verifytoken');
+const jwt = require('jsonwebtoken');
+const config = require('./config');
+const VerifyToken = require('./verifytoken');
 
 /**
  * Täällä hoidetaan käyttäjän asioita.
  */
 
-var bodyParser = require('body-parser'); // Create application/x-www-form-urlencoded parser (for POST)
+const bodyParser = require('body-parser'); // Create application/x-www-form-urlencoded parser (for POST)
 
 // Create application/x-www-form-urlencoded parser
 let urlencodedParser = bodyParser.urlencoded({ extended: false });
@@ -31,7 +31,7 @@ const { check, validationResult } = require('express-validator');
 
 router.post("/api/login", urlencodedParser,
     [check('salasana').isLength({ min: 8 }).withMessage("Salasana täytyy olla vähintään 8 merkkiä pitkä!"),
-        check('nimimerkki').isLength({ min: 5 }).withMessage("Nimimerkki täytyy olla vähintään 5 merkkiä pitkä!")],
+        check('sahkoposti').isEmail().withMessage("Sähköpostiosoite ei ole kelvollinen!")],
     function (req, res) {
 
     let jsonObj = req.body;
@@ -44,24 +44,18 @@ router.post("/api/login", urlencodedParser,
             });
         }
 
-        let sql = "SELECT * FROM kayttaja WHERE nimimerkki = ?";
+        let sql = "SELECT * FROM kayttaja WHERE sahkoposti = ?";
 
     (async () => { // IIFE (Immediately Invoked Function Expression)
         try {
 
-            const rows = await query(sql,[jsonObj.nimimerkki]);
-
-            /**
-             * Jos tietokannasta tuli sisältöä.
-             */
-
-            if (rows.length != 0) {
+            const rows = await query(sql,[jsonObj.sahkoposti]);
 
                 /**
                  * Tarkistetaan onko nimimerkki ja salasana kelvollisia.
                  */
 
-                if (rows[0].nimimerkki != null && rows[0].salasana != null) {
+                if (rows[0].sahkoposti != null && rows[0].salasana != null && rows.length != 0) {
 
                     /**
                      * Otetaan käyttäjän id tietokannasta
@@ -77,35 +71,32 @@ router.post("/api/login", urlencodedParser,
 
                     if (validPassword) {
 
-                        var token = jwt.sign({id: insertedId, user: req.body.nimimerkki}, config.secret, {
-                            expiresIn: "30min"
+                        const tokenValue = jwt.sign({id: insertedId, user: req.body.sahkoposti}, config.secret, {
+                            expiresIn: "1h"
                         });
 
                         /**
-                         * Jos kaikki onnistui viedään token selaimeen ja käyttäjän nimimerkki tallentamaan vuexiin.
+                         * Jos kaikki onnistui viedään token selaimeen ja käyttäjän tiedot.
                          */
 
-                        return res.send({
-                            token: token,
-                            user: req.body.nimimerkki
-
+                        res.status(202).json({
+                            token: tokenValue,
+                            user: req.body.sahkoposti
                         });
 
+                    } else {
+                        res.status(204).send()
                     }
 
+                } else {
+
+                    res.status(401).send('Tyhjät kentät!')
                 }
-
-            }
-
-            return res.status(401).json({
-                success: false,
-                message: 'Kirjautuminen epäonnistui!',
-            })
-
 
         }
         catch (err) {
-            console.log("Database error!"+ err);
+            console.log("Insertion into some (2) table was unsuccessful!" + err)
+            res.status(400).send('kirjautuminen ei onnistunut!' + err)
 
         }
     })()
@@ -119,15 +110,13 @@ router.post("/api/login", urlencodedParser,
 
 router.post("/api/register", urlencodedParser,
     [check('salasana').isLength({ min: 8 }).withMessage("Salasana täytyy olla vähintään 8 merkkiä pitkä!"),
-        check('nimimerkki').isLength({ min: 5 }).withMessage("Nimimerkki täytyy olla vähintään 5 merkkiä pitkä!"),
         check('sahkoposti').isEmail().normalizeEmail().withMessage("Sähköpostin muotoilu on väärin!"),
         check('salasana').custom((value,{req}) => {
-        if (value !== req.body.salasana2) {
-
-            throw new Error("Salasanat eivät täsmäää!");
-        } else {
-            return value;
-        }
+            if (value !== req.body.salasana2) {
+                throw new Error("Salasanat eivät täsmäää!")
+            } else {
+                return value
+            }
     })
 
     ],
@@ -144,47 +133,25 @@ router.post("/api/register", urlencodedParser,
             });
         }
 
-
-
-    let sql = "INSERT into kayttaja (nimimerkki , sahkoposti, salasana)"
-        + " VALUES (?, ?, ?)";
+    let sql = "INSERT into kayttaja (sahkoposti, salasana)"
+        + " VALUES (?, ?)";
 
     (async () => { // IIFE (Immediately Invoked Function Expression)
         try {
 
-
-
-
-
-            let user = true;
-
-            let email = true;
-
-            let sql2 = "SELECT nimimerkki FROM kayttaja WHERE nimimerkki = ?";
+            let email = false;
 
             let sql3 = "SELECT sahkoposti FROM kayttaja WHERE sahkoposti = ?";
 
-            const rows = await query(sql2,[jsonObj.nimimerkki]);
-
             const rows2 = await query(sql3,[jsonObj.sahkoposti]);
-
-            /**
-             * Tarkistetaan onko samanlainen nimimerkki olemassa tietokannassa.
-             */
-
-            if (JSON.stringify(rows.length) != 0) {
-
-                user = false;
-
-            }
 
             /**
              * Tarkistetaan onko samanlainen sahkoposti olemassa tietokannassa.
              */
 
-            if (JSON.stringify(rows2.length) != 0) {
+            if (JSON.stringify(rows2.length) == 0) {
 
-                email = false;
+                email = true;
 
             }
 
@@ -192,26 +159,17 @@ router.post("/api/register", urlencodedParser,
              * Jos salasanat täsmää sekä nimimerkki ja sahkoposti eivät ole olemassa niin hashataan salasana ja viedään tiedot kantaan.
              */
 
-            if (jsonObj.salasana == jsonObj.salasana2 && user == true && email == true) {
+            if (jsonObj.salasana == jsonObj.salasana2 && email == true) {
 
                 let hashedPassword = await bcrypt.hash(jsonObj.salasana, 10);
 
-                await query(sql,[jsonObj.nimimerkki, jsonObj.sahkoposti, hashedPassword]);
+                await query(sql,[jsonObj.sahkoposti, hashedPassword]);
 
-                res.status(200).json({
-                    success: true,
-                    message: 'Rekisteröinti onnistui!',
-                    user: user,
-                    email: email
-                })
+                res.status(201).send('Rekisteröinti onnistui!')
 
             } else {
-                res.status(403).json({
-                    success: false,
-                    message: 'Rekisteröinti epäonnistui!',
-                    user: user,
-                    email: email
-                })
+
+                res.status(403).send('Rekisteröinti epäonnistui!')
             }
 
         }
@@ -228,9 +186,8 @@ router.post("/api/register", urlencodedParser,
 
 router.get("/api/check", VerifyToken, function (req, res) {
 
-    res.send({
-        user: req.userData.user,
-        time: req.userData.exp
+    res.json({
+        value: req.userData
     });
 
 });
@@ -241,14 +198,22 @@ router.get("/api/check", VerifyToken, function (req, res) {
 
 router.get("/api/search", VerifyToken, function (req, res) {
 
-    let sql = "SELECT kayttaja.kayttaja_id, kayttaja.nimimerkki FROM kayttaja LEFT JOIN kaverilista ON (kayttaja.kayttaja_id = kaverilista.lahettaja_id  AND kaverilista.vastaanottaja_id = ?) OR (kayttaja.kayttaja_id = kaverilista.vastaanottaja_id  AND kaverilista.lahettaja_id = ?) WHERE kayttaja.kayttaja_id != ? AND kaverilista.kaveri_id IS NULL AND kayttaja.nimimerkki LIKE ? LIMIT ? ";
+
+        let sql = "SELECT kayttaja.kayttaja_id, kaverilista.hyvaksytty, kayttaja.sahkoposti FROM kayttaja LEFT JOIN kaverilista ON (kayttaja.kayttaja_id = kaverilista.lahettaja_id AND kaverilista.vastaanottaja_id = ?) OR (kayttaja.kayttaja_id = kaverilista.vastaanottaja_id  AND kaverilista.lahettaja_id = ?) WHERE kayttaja.kayttaja_id != ? AND (kaverilista.hyvaksytty = ? OR kaverilista.hyvaksytty IS NULL) LIMIT ?";
+
+        let sql2 = "SELECT kayttaja.kayttaja_id, kaverilista.hyvaksytty, kayttaja.sahkoposti FROM kayttaja LEFT JOIN kaverilista ON (kayttaja.kayttaja_id = kaverilista.lahettaja_id AND kaverilista.vastaanottaja_id = ?) OR (kayttaja.kayttaja_id = kaverilista.vastaanottaja_id  AND kaverilista.lahettaja_id = ?) WHERE kayttaja.kayttaja_id != ? AND (kaverilista.hyvaksytty = ? OR kaverilista.hyvaksytty IS NULL) AND kayttaja.sahkoposti LIKE ? LIMIT ?";
+
+        let rows;
 
     (async () => {
         try {
+            if (req.query.name == '') {
+                rows = await query(sql,[req.userData.id, req.userData.id, req.userData.id, 0, 10]);
+            } else {
+                rows = await query(sql2,[req.userData.id, req.userData.id, req.userData.id, 0, '%' + req.query.name + '%', 10]);
+            }
 
-            const rows = await query(sql,[req.userData.id, req.userData.id, req.userData.id, '%' + req.query.name + '%', 10]);
-
-            return res.status(200).json({
+            res.status(200).json({
                 success: true,
                 message: 'Haku onnistui!',
                 userdata: rows
@@ -306,19 +271,13 @@ router.post("/api/invites", urlencodedParser, VerifyToken,
 
                     await query(sql, [jsonObj.vastaanottaja, req.userData.id, 0]);
 
-
-
-                    return res.status(200).json({
-                        success: true,
-                        message: 'Kutsu onnistui!'
+                    res.status(201).json({
+                        id: jsonObj.vastaanottaja
                     })
                 }
 
 
-                return res.status(403).json({
-                    success: true,
-                    message: 'Kutsu epäonnistui!'
-                })
+                res.status(403).send("Kutsun lähettämisessä tapahtui virhe!")
 
 
             }
@@ -335,7 +294,7 @@ router.post("/api/invites", urlencodedParser, VerifyToken,
 /**
  * Seuraava toiminto hakee jokaisen käyttäjän kannasta ja selaimessa laittaa tiedot selaus listaan käyttäjälista sivulla.
  */
-
+/*
 router.get("/api/search/users", VerifyToken, function (req, res) {
 
     let arvo = req.query.filter;
@@ -374,7 +333,7 @@ router.get("/api/search/users", VerifyToken, function (req, res) {
         }
     })()
 });
-
+*/
 
 /**
  * Seuraava toiminto käsittelee käyttäjän saapuneita kutsuja.
@@ -415,30 +374,22 @@ router.delete("/api/deleteInvite", VerifyToken, function (req, res) {
 
     let  sql = "DELETE FROM kaverilista WHERE vastaanottaja_id = ? AND lahettaja_id = ?";
 
-    console.log("eka: " + req.body.tunnus);
-
-    console.log("toka: " + req.userData.id);
 
     (async () => {
         try {
 
-           const rows  = await query(sql,[req.body.tunnus, req.userData.id]);
+            const deleteObject = JSON.parse(req.headers['deleteobject'])
+
+           const rows  = await query(sql,[deleteObject.vastaanottaja, req.userData.id]);
 
 
             if (rows) {
 
-                return res.status(200).json({
-                    success: true,
-                    message: 'poisto onnistui!',
-                    id: req.body.tunnus
-                })
+                res.status(201).send()
 
             } else {
 
-                return res.status(401).json({
-                    success: false,
-                    message: 'poisto epäonnistui!'
-                })
+                res.status(401).send()
 
             }
 
@@ -461,23 +412,17 @@ router.delete("/api/deleteInvite2", VerifyToken, function (req, res) {
     (async () => {
         try {
 
-            const rows  = await query(sql,[req.userData.id, req.body.tunnus]);
+            const deleteObject = JSON.parse(req.headers['deleteobject'])
 
+            const rows  = await query(sql,[req.userData.id, deleteObject.vastaanottaja]);
 
             if (rows) {
 
-                return res.status(200).json({
-                    success: true,
-                    message: 'poisto onnistui!',
-                    id: req.body.tunnus
-                })
+                res.status(200).send('poisto onnistui!')
 
             } else {
 
-                return res.status(401).json({
-                    success: false,
-                    message: 'poisto epäonnistui!'
-                })
+                res.status(401).send('poisto epäonnistui!')
 
             }
 
@@ -499,7 +444,7 @@ router.get("/api/receiveInvites", VerifyToken, function (req, res) {
 
 
 
-    let sql = "SELECT kaverilista.vastaanottaja_id, kaverilista.lahettaja_id, kayttaja.nimimerkki FROM kaverilista, kayttaja WHERE kaverilista.lahettaja_id = kayttaja.kayttaja_id AND kaverilista.vastaanottaja_id = ? AND kayttaja.kayttaja_id != ? AND kaverilista.hyvaksytty = ?";
+    let sql = "SELECT kayttaja.kayttaja_id, kaverilista.vastaanottaja_id, kaverilista.lahettaja_id, kayttaja.sahkoposti FROM kaverilista, kayttaja WHERE kaverilista.lahettaja_id = kayttaja.kayttaja_id AND kaverilista.vastaanottaja_id = ? AND kayttaja.kayttaja_id != ? AND kaverilista.hyvaksytty = ?";
 
 
 
@@ -508,7 +453,7 @@ router.get("/api/receiveInvites", VerifyToken, function (req, res) {
 
             const rows = await query(sql,[req.userData.id, req.userData.id, 0]);
 
-            return res.status(200).json({
+            res.status(200).json({
                 success: true,
                 message: 'hakeminen onnistui!',
                 userdata: rows
@@ -538,11 +483,11 @@ router.put("/api/acceptInvite", urlencodedParser, VerifyToken, function (req, re
     (async () => {
         try {
 
-            await query(sql2,[ req.body.tunnus, req.userData.id]);
+            await query(sql2,[req.body.tunnus, req.userData.id]);
 
             await query(sql,[1, req.userData.id, req.body.tunnus]);
 
-                return res.status(200).json({
+                res.status(200).json({
                     success: true,
                     message: 'päivitys onnistui!',
                     id: req.body.tunnus

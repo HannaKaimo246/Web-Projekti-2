@@ -1,14 +1,14 @@
 const mysql = require('mysql');
 
 /**
- * Luodaan tietokanta yhteys ja tarkistetaan että tietokanta yhteys onnistui.
+ * Luodaan tietokanta yhteys ja tarkistetaan onko tietokanta yhteys onnistunut.
  */
 
 const conn = mysql.createConnection({
-    host: 'mysql.metropolia.fi',
-    user: 'ariten',
-    password: 'talo123',
-    database: 'ariten'
+    host: 'localhost',
+    user: 'root',
+    password: 'oma',
+    database: 'chatti_db'
 });
 
 conn.connect(function(err) {

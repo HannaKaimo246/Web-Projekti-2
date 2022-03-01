@@ -11,6 +11,8 @@ const Map = ({setCoordinates, setBounds, coordinates, places, weatherData})=> {
 const classes = useStyles();
 const isDesktop = useMediaQuery('(min-width:600px)');
 
+const coords = [60.192059, 24.945831]
+
 
   return (
      <div className={classes.mapContainer}>
@@ -38,22 +40,25 @@ const isDesktop = useMediaQuery('(min-width:600px)');
                    <LocationOnOutlinedIcon color="primary" fontSize="large" />
                    ) : (
                        <Paper elevation={3} className={classes.paper}>
-                          <Typography className={classes.typography} variant="subtitle2" gutterBottom>
+                          <Typography className={classes.typography} gutterBottom>
                             {place.name}
                           </Typography>
-                         <img
-                             className={classes.pointer}/>
                          <Rating size="small" value={Number(place.rating)} readOnly/>
                        </Paper>
                )}
              </div>
              ))}
-         {weatherData?.list?.length && weatherData?.list?.map((data, i) => (
+         {weatherData?.list?.map((data, i) => (
              <div key={i} lat={data.coords.lat} lng={data.coords.lng}>
-               <img height="70px" src={`http://openweathermap.org/img/w/${weatherData[0].icon}.png`}
+               <img height="70px" src={`http://openweathermap.org/img/wn/10d@2x}.png`}
                alt="sääikonit"/>
              </div>
          ))}
+         <LocationOnOutlinedIcon color="primary" font-size="large" position={setBounds} >
+           <Paper>
+         <Typography>Hanna</Typography>
+           </Paper>
+         </LocationOnOutlinedIcon>
        </GoogleMapReact>
            </div>
        )

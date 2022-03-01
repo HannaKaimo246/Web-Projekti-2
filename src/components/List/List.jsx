@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import { Grid, Typography, InputLabel, MenuItem, FormControl, Select}
 from '@material-ui/core';
 
@@ -7,22 +7,48 @@ import Image1 from './Images/Janne.JPG';
 import Image2 from './Images/Kuva.jpg';
 
 import useStyles from './styles';
+import axios from 'axios';
 
-const List = () => {
-const classes = useStyles();
-const [type, setType] = useState('restaurants');
-const [rating, setRating] = useState('');
-
-
-const places = [
-  {name: 'Lauri', photo: Image1},
+const people =[
   {name: 'Hanna', photo: Image2},
-  {name: 'Kaija'}
+  {name: 'Rickey', photo: Image1},
+  {name: 'Michael'},
+  {name: 'John'},
+  {name: 'Rickey'},
+  {name: 'Michael'}
 ]
+
+
+const List = ({type, setType, rating, setRating}) => {
+
+const classes = useStyles();
+const [user, setUser] = useState('');
+const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+
+
+    let userObject = {
+
+      nimimerkki: user
+
+    }
+
+    console.log('effect')
+    axios
+    .get('http://localhost:3001/kayttaja?nimimerkki=' + userObject.nimimerkki)
+    .then(response => {
+      console.log('Listaaminen onnistui!')
+      setUsers(response.data)
+    })
+
+  }, [])
+
+
 
   return (
       <div className={classes.container}>
-        <Typography variant="h4">People in Chat:</Typography>
+        <Typography variant="h4">Chatissa olevat ihmiset:</Typography>
         <FormControl className={classes.formControl}>
           <InputLabel>Type</InputLabel>
           <Select value={type} onChange={(e) => setType(e.target.value)}>
@@ -41,9 +67,9 @@ const places = [
           </Select>
         </FormControl>
         <Grid container spacing={3} className={classes.list}>
-          {places?.map(( place, i) => (
+          {people?.map(( user, i) => (
                 <Grid item key={i} xs={12}>
-                  <PlaceDetails place={place} />
+                  <PlaceDetails user={user} />
         </Grid>
                 ))}
         </Grid>

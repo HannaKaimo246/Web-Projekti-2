@@ -1,7 +1,7 @@
 const Sockets = (io) => {
 
     /**
-     * Sockets käytetään chatin realiaikaiseen viestimiseen ja kartassa markkerin realiaikaiseen päivittämiseen.
+     * Socket käytetään chatin realiaikaiseen viestimiseen, ilmoituksien saamiseen ja kartassa markkerin realiaikaiseen päivittämiseen.
      */
 
     /**
@@ -10,7 +10,7 @@ const Sockets = (io) => {
 
     let index = -1;
 
-    var sockets = [];
+    let sockets = [];
 
     /**
      * Luodaan yhteys.
@@ -26,12 +26,39 @@ const Sockets = (io) => {
 
         socket.on('user-join', function(data) {
 
+            console.log("user-join: " + data.id)
+
+            socket.join(data.id);
+
             sockets[id] = data.id;
 
             io.emit('user-online', data.id);
 
         });
 
+        /**
+         * Seuraava toiminto lisää yhden kutsu ilmoituksen kaverille
+         */
+
+        socket.on('addNotifications', value => {
+
+            console.log("id: " + value.id)
+
+            socket.to(value.id).emit("addNotifications", value);
+
+
+        });
+
+        /**
+         * Seuraava toiminto poistaa yhden kutsu ilmoituksen kaverille
+         */
+
+        socket.on('removeNotifications', value => {
+
+            socket.to(value.id).to(value.tunnus).emit("removeNotifications", value);
+
+
+        });
 
         /**
          * Seuraava toiminto lisää käyttäjän onlineen openchatissa.
@@ -65,18 +92,22 @@ const Sockets = (io) => {
 
         socket.on('privateTyping', value => {
 
-            let aula = parseInt(value.id);
+            let aula2 = parseInt(value.id2)
 
-            let aula2 = parseInt(value.id2);
+            let arvo = value.arvo
 
-            let arvo = value.arvo;
+            let kayttaja = value.kayttaja
+
+            const tulos = {
+                arvo,
+                kayttaja
+            }
 
             /**
-             * Tieto meenee omaan aulaan ja kaverin aulaan.
+             * Tieto meenee kaverin aulaan.
              */
 
-            socket.to(aula).to(aula2).emit("privateTyping", arvo);
-
+            socket.to(aula2).emit("privateTyping", tulos);
 
         });
 
@@ -139,13 +170,13 @@ const Sockets = (io) => {
 
           let aula = data.vastaanottaja_id;
 
-          let aula2 = data.lahettaja_id;
+       //   let aula2 = data.lahettaja_id;
 
             /**
              * Viedään tieto käyttäjän, kaverin aulaan ja lähetetään selaimelle.
              */
 
-            socket.to(aula).to(aula2).emit("PrivateMessageReceived", data);
+            socket.to(aula).emit("PrivateMessageReceived", data);
 
         })
 
@@ -157,13 +188,13 @@ const Sockets = (io) => {
 
             let aula = data.vastaanottaja_id;
 
-            let aula2 = data.lahettaja_id;
+          //  let aula2 = data.lahettaja_id;
 
             /**
              * Viedään tieto käyttäjän, kaverin aulaan ja lähetetään selaimelle.
              */
 
-            socket.to(aula).to(aula2).emit("deleteMessage", data);
+            socket.to(aula).emit("deleteMessage", data);
 
         })
 
