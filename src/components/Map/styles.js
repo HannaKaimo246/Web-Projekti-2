@@ -13,4 +13,12 @@ export default makeStyles(() => ({
     pointer: {
         cursor: 'pointer',
     },
+    h1: {
+        position: 'absolute',
+        top: '1rem',
+        left: '1rem',
+        zIndex: 10,
+        margin: 0,
+        padding: 0
+}
 }));
