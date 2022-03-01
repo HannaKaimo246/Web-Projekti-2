@@ -11,17 +11,6 @@ import Image2 from '../../components/List/Images/Kuva.jpg'
 import useStyles from './styles';
 import axios from 'axios';
 
-const people =[
-  {name: 'Hanna', photo: Image2},
-  {name: 'Rickey', photo: Image1},
-  {name: 'Michael'},
-  {name: 'John'},
-  {name: 'Rickey'},
-  {name: 'Michael'}
-
-]
-
-
 const List = ({type, setType, rating, setRating}) => {
 
 const classes = useStyles();
@@ -30,22 +19,36 @@ const [users, setUsers] = useState([]);
 
   useEffect(() => {
 
+      const tokenObject = localStorage.getItem('token')
 
-    let userObject = {
+      if (tokenObject == null)
+          return false
 
-      nimimerkki: user
+      let token = JSON.parse(tokenObject).token
 
-    }
+      axios
+          .get('http://localhost:8080/api/mapUsers',
+              {headers: {Authorization: 'Bearer: ' + token}}
+          ).then(response => {
+          console.log('Kartan listaaminen onnistui!' + JSON.stringify(response.data))
 
-    console.log('effect')
-      /*
-    axios
-    .get('http://localhost:3001/kayttaja?nimimerkki=' + userObject.nimimerkki)
-    .then(response => {
-      console.log('Listaaminen onnistui!')
-      setUsers(response.data)
-    })
-*/
+          let arr = []
+
+          response.data.userdata.forEach((element, index) => {
+
+              if (element.kuva) {
+                  arr.push({name: element.sahkoposti, photo: 'http://localhost:8080/' + element.kuva});
+              } else {
+                  arr.push({name: element.sahkoposti, photo: 'http://localhost:8080/uploads/default-user.png'});
+              }
+
+
+          });
+
+          setUsers(arr)
+
+      })
+
   }, [])
 
 
@@ -71,7 +74,7 @@ const [users, setUsers] = useState([]);
           </Select>
         </FormControl>
         <Grid container spacing={3} className={classes.list}>
-          {people?.map(( user, i) => (
+          {users && users?.map(( user, i) => (
                 <Grid item key={i} xs={12}>
                   <PlaceDetails user={user} />
         </Grid>

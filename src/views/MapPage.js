@@ -17,7 +17,6 @@ const MapPage = () => {
     const [rating, setRating] = useState(0);
     const [markers, setMarkers] = useState([]);
 
-
     useEffect(() => {
         navigator.geolocation.getCurrentPosition(({coords: {latitude, longitude}}) => {
             setCoordinates({lat: latitude, lng: longitude});
@@ -61,6 +60,7 @@ const MapPage = () => {
                     />
                 </Grid>
             </Grid>
+
         </>
     );
 }

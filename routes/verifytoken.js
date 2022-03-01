@@ -2,7 +2,7 @@ var jwt = require('jsonwebtoken');
 var config = require('./config');
 
 /**
- * Tarkistaa onko selaimesta tullut json token kelvollinen.
+ * Tarkistaa onko selaimesta tullut json web token kelvollinen.
  */
 
 function verifyToken(req, res, next) {

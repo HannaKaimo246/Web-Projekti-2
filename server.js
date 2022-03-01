@@ -35,9 +35,9 @@ app.use(function(req, res, next) {
 
 //app.use(settings);
 
-//const map = require('./routes/map');
+const map = require('./routes/map');
 
-//app.use(map);
+app.use(map);
 
 const path = require('path');
 
@@ -45,6 +45,8 @@ const cors = require('cors');
 app.use(cors());
 
 app.use(express.static(path.join(__dirname,'./public')));
+
+app.use('/uploads', express.static(path.resolve(__dirname, './uploads')));
 
 const io = require('socket.io')(server, {
     cors: {
