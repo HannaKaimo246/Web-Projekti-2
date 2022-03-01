@@ -15,20 +15,24 @@ import InputBase from '@material-ui/core/InputBase';
 
 const AddLocation = () => {
 
-let ownUser = document.getElementById('nimimerkki').value;
+  let ownUser = document.getElementById('nimimerkki').value;
 
-console.log(ownUser);
+  let circle = [
+    {
+      id: 1,
+      name: ownUser,
+      latitude: "61",
+      longitude: "24",
+      circle: {
+        options: {
+          strokeColour: 'red',
+        },
+        radius: 5000
 
-let Marker = {
+      },
+    }
+  ]
 
-  color: "red",
-  text: ownUser,
-  latitude: 60.192059,
-  longitude: 24.945831
-
-}
-
-Map.add(Marker);
 }
 
 const Header = ({setCoordinates}) => {
@@ -58,12 +62,6 @@ const onPlaceChanged = () => {
           Lisää uusi chattaaja
       </Typography>
       <Input type="text" className={classes.title} placeholder="nimimerkki" id="nimimerkki">
-      </Input>
-      <Typography variant="h5" className={classes.title}>
-        Valitse markerisi väri
-      </Typography>
-      <Input type="color" id="markerinVari" className={classes.title} name="colorPicker"
-      placeholder="Valitse markerisi väri">
       </Input>
       <Button class="btn btn-primary" type="submit" id="locationButton" onClick={AddLocation}>
         Lisää

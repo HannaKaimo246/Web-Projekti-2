@@ -1,10 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import { Grid, Typography, InputLabel, MenuItem, FormControl, Select}
+import {Grid, Typography, InputLabel, MenuItem, FormControl, Select}
 from '@material-ui/core';
 
-import PlaceDetails from '../PlaceDetails/PlaceDetails';
-import Image1 from './Images/Janne.JPG';
-import Image2 from './Images/Kuva.jpg';
+import PlaceDetails from '../../components/PlaceDetails/PlaceDetails'
+
+import Image1 from '../../components/List/Images/Janne.JPG'
+
+import Image2 from '../../components/List/Images/Kuva.jpg'
 
 import useStyles from './styles';
 import axios from 'axios';
@@ -16,6 +18,7 @@ const people =[
   {name: 'John'},
   {name: 'Rickey'},
   {name: 'Michael'}
+
 ]
 
 
@@ -35,13 +38,14 @@ const [users, setUsers] = useState([]);
     }
 
     console.log('effect')
+      /*
     axios
     .get('http://localhost:3001/kayttaja?nimimerkki=' + userObject.nimimerkki)
     .then(response => {
       console.log('Listaaminen onnistui!')
       setUsers(response.data)
     })
-
+*/
   }, [])
 
 
