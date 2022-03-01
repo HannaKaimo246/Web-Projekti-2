@@ -4,6 +4,7 @@ import {Form, Button, Card, Alert} from "react-bootstrap";
 
 import { useAuth } from "../../contexts/AuthContext";
 import {Link, useHistory} from "react-router-dom";
+import axios from "axios";
 
 const Settings = () => {
 
@@ -52,6 +53,36 @@ const Settings = () => {
 
     }
 
+    const imageHandler = (event) => {
+
+        const file = event.target.files[0]
+
+        const formData = new FormData()
+
+        formData.append('image', file)
+
+        const tokenObject = localStorage.getItem('token')
+
+        if (tokenObject == null)
+            return false
+
+        let token = JSON.parse(tokenObject).token
+
+        axios
+            .post('http://localhost:8080/api/addImage', formData,
+                {headers: {
+                    Authorization: 'Bearer: ' + token,
+                        Accept: 'multipart/form-data'
+                    }
+                }
+            ).then(response => {
+            console.log('Kuvan lisaaminen onnistui!' + JSON.stringify(response.data))
+
+        })
+
+
+    }
+
     return (
         <>
             <Card>
@@ -72,6 +103,7 @@ const Settings = () => {
                             <Form.Control type="password" ref={passwordConfirmRef} required placeholder="Jätä kenttä tyhjäksi pitääkseen salasanan ennallaan." />
                         </Form.Group>
                         <button disabled={loading} className="w-100" type="submit">Päivitä</button>
+                        <input type="file" name="image" accept="image/*" multiple={false} onChange={imageHandler} />
                     </form>
                 </Card.Body>
             </Card>

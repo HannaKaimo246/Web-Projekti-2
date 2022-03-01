@@ -8,6 +8,8 @@ const jwt = require('jsonwebtoken');
 const config = require('./config');
 const VerifyToken = require('./verifytoken');
 
+const multer = require('multer')
+
 /**
  * Täällä hoidetaan käyttäjän asioita.
  */
@@ -19,6 +21,25 @@ let urlencodedParser = bodyParser.urlencoded({ extended: false });
 router.use(bodyParser.urlencoded({ extended: false }));
 router.use(bodyParser.json()); // for reading JSON
 const { check, validationResult } = require('express-validator');
+
+/*
+ * Kuva tiedoston tallentaminen
+ */
+
+
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, "./");},
+    filename: function (req, file, cb) {
+        const ext = file.mimetype.split("/")[1];
+        cb(null, `uploads/${file.originalname}-${Date.now()}.${ext}`);
+    }
+})
+
+const upload = multer({
+    storage: storage
+})
 
 /**
  * Seuraava toiminto hoitaa käyttäjän kirjautumisen.
@@ -501,5 +522,38 @@ router.put("/api/acceptInvite", urlencodedParser, VerifyToken, function (req, re
 
 
 });
+
+/*
+ * Kuvan lisaaminen asetuksista.
+ */
+
+router.post("/api/addImage", upload.single('image'), VerifyToken, function (req, res) {
+
+    if (!req.file.originalname.match(/\.(jpg|JPG|jpeg|JPEG|png|PNG|gif|GIF)$/)) {
+
+        res.status(400).send({ msg:'Only image files (jpg, jpeg, png) are allowed!'})
+
+    } else {
+
+        const image = req.file.filename
+
+        let sql = "UPDATE kayttaja SET kuva = ? WHERE kayttaja_id = ?";
+
+        (async () => {
+            try {
+
+                await query(sql,[image, req.userData.id]);
+
+                res.status(200).send('Kuvan lisääminen onnistui!')
+
+            } catch (err) {
+                console.log("Ei voitu lisätä kuvaa: "+ err);
+            }
+        })()
+    }
+
+
+})
+
 
 module.exports = router;
