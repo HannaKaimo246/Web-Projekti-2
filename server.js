@@ -25,11 +25,9 @@ app.use(function(req, res, next) {
     next();
 });
 
+const firebase = require('./routes/firebaseuser');
 
-
-//const firebase = require('./routes/firebaseapi');
-
-//app.use(firebase);
+app.use(firebase);
 
 //const settings = require('./routes/settings');
 

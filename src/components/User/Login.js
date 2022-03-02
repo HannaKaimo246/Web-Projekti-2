@@ -59,36 +59,56 @@ const Login = () => {
         if (form.checkValidity() === false)
             return
 
+        const userObject = {
+            sahkoposti: newEmail,
+            salasana: newPassword
+        }
+
         try {
 
             if (id == "forgotpassword") {
 
                 // unohtunut salasana
 
+                await login(newEmail, newPassword)
 
-                /*
-   await login(emailRef.current.value, passwordRef.current.value)
+                const authtoken = login.credential.idToken
 
-   const ifuserExists = await userExists(newEmail)
+                const ifuserExists = await userExists(newEmail)
 
-   if (ifuserExists) {
+                if (ifuserExists) {
 
-       console.log("on olemassa!")
+                    console.log("Kayttaja on olemassa firebasessa!")
 
-   } else {
+                    axios
+                        .post('http://localhost:8080/api/checkFirebase', userObject,
+                    {headers: {
+                        Authorization: 'Bearer: ' + authtoken,
+                            alg: 'RS256',
+                            kid: '2dc0e6df9827a02061e82f45b48400d0d5b282c0'
+                        }
+                    }
+                        ).then(response => {
 
-       console.log("ei ole olemassa!")
+                      console.log("firebase tarkistus: " + JSON.stringify(response.data))
 
-   }
-*/
+                    }).catch(function (error) {
+                        console.log(error)
+                    });
+
+
+
+                } else {
+
+                    console.log("Kayttaja ei ole olemassa firebasessa!")
+
+                }
+
                 console.log("id: " + id)
 
             } else {
 
-                const userObject = {
-                    sahkoposti: newEmail,
-                    salasana: newPassword
-                }
+
 
                 axios
                     .post('http://localhost:8080/api/login', userObject

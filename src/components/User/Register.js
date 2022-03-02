@@ -22,7 +22,7 @@ const Register = () => {
 
     const formRef = useRef(null)
 
-    const { signup } = useAuth()
+    const { signup, loginUser } = useAuth()
 
     const [error, setError] = useState('')
 
@@ -108,14 +108,45 @@ const Register = () => {
 
                     handleReset()
 
-                    if (_isMounted)
-                         history.push('/');
-
                 }
 
             }).catch(function (error) {
                     console.log(error)
                 });
+
+           /*
+            * Kirjaudutaan sisään
+            */
+
+            axios
+                .post('http://localhost:8080/api/login', userObject
+                ).then(response => {
+
+                if (response.status === 202) {
+
+                    // Kirjautuminen onnistui!
+
+                    localStorage.setItem('token', JSON.stringify(response.data))
+
+                    let tokenArvo = localStorage.getItem('token');
+
+                    let tokenObject = JSON.parse(tokenArvo);
+
+                    console.log("Token localstoragessa: " + tokenObject.token)
+
+                    handleReset()
+
+                    if (_isMounted) {
+
+                        loginUser({email: newEmail})
+
+                        history.push('/');
+                    }
+                }
+
+            }).catch(function (error) {
+                console.log(error)
+            });
 
         } catch {
             setError('Tilin luomisessa tapahtui virhe. Yritä hetken kuluttua uudelleen.')
