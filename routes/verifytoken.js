@@ -1,5 +1,5 @@
-var jwt = require('jsonwebtoken');
-var config = require('./config');
+const jwt = require('jsonwebtoken');
+const config = require('./config');
 
 /**
  * Tarkistaa onko selaimesta tullut json web token kelvollinen.

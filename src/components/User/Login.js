@@ -66,13 +66,15 @@ const Login = () => {
 
         try {
 
-            if (id == "forgotpassword") {
+               const search =  window.location.search;
+               const params = new URLSearchParams(search);
+               const value = params.get('ForgotPassword');
+
+            if (value) {
 
                 // unohtunut salasana
 
                 await login(newEmail, newPassword)
-
-                const authtoken = login.credential.idToken
 
                 const ifuserExists = await userExists(newEmail)
 
@@ -81,16 +83,28 @@ const Login = () => {
                     console.log("Kayttaja on olemassa firebasessa!")
 
                     axios
-                        .post('http://localhost:8080/api/checkFirebase', userObject,
-                    {headers: {
-                        Authorization: 'Bearer: ' + authtoken,
-                            alg: 'RS256',
-                            kid: '2dc0e6df9827a02061e82f45b48400d0d5b282c0'
-                        }
-                    }
+                        .post('http://localhost:8080/api/checkForgotPassword', userObject,
+                    {headers: {Authorization: 'Bearer ' + localStorage.getItem('firebaseToken')}}
                         ).then(response => {
 
-                      console.log("firebase tarkistus: " + JSON.stringify(response.data))
+                        if (response.status === 202) {
+
+                        console.log("firebase tarkistus: " + JSON.stringify(response.data))
+
+                        localStorage.setItem('token', JSON.stringify(response.data))
+
+                        localStorage.removeItem('firebaseToken')
+
+                        handleReset()
+
+                        if (_isMounted) {
+
+                            loginUser({email: newEmail})
+
+                            history.push('/');
+                        }
+
+                    }
 
                     }).catch(function (error) {
                         console.log(error)

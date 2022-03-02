@@ -51,13 +51,10 @@ const ForgotPassword = () => {
                         <button disabled={loading} className="w-100" type="submit">Vaihda salasana</button>
                     </form>
                     <div className="w-100 text-center mt-3">
-                        <Link to="/login">Kirjaudu</Link>
+                        <Link to="user/login?ForgotPassword=true">Sähköposti linkin jälkeen vahvista uusi salasana kirjautumalla</Link>
                     </div>
                 </Card.Body>
             </Card>
-            <div className="w-100 text-center mt-2">
-                Eikö sinulla ole tiliä? <Link to="user/register">Rekisteröidy</Link>
-            </div>
         </>
     )
 

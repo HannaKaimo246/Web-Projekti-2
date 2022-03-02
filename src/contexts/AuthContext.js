@@ -1,8 +1,8 @@
 import React, {useContext, useState, useEffect, useRef} from "react";
 
-import { useHistory } from "react-router-dom";
+import {useHistory} from "react-router-dom";
 
-import { auth } from '../AuthFirebase';
+import {auth} from '../firebase';
 import firebase from "firebase/app";
 
 import jwt from 'jwt-decode'
@@ -11,12 +11,11 @@ const AuthContext = React.createContext();
 
 export const useAuth = () => useContext(AuthContext);
 
-export const AuthProvider = ({ children }) => {
+export const AuthProvider = ({children}) => {
 
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState();
     const history = useHistory();
-
 
 
     const _isMounted = useRef(true); // Initial value _isMounted = true
@@ -50,6 +49,7 @@ export const AuthProvider = ({ children }) => {
 
         return auth.signInWithEmailAndPassword(email, password)
 
+
     }
 
     const resetPassword = (email) => {
@@ -77,9 +77,9 @@ export const AuthProvider = ({ children }) => {
 
     const deleteUser = () => {
 
-        user.delete().then(function() {
+        user.delete().then(function () {
             // User deleted.
-        }).catch(function(error) {
+        }).catch(function (error) {
             // An error happened.
         });
 
@@ -89,15 +89,20 @@ export const AuthProvider = ({ children }) => {
 
         const token = localStorage.getItem('token')
 
+        const tokenFirebase = localStorage.getItem('firebaseToken')
+
         setUser(null)
 
         if (token)
             localStorage.removeItem('token')
 
+        if (tokenFirebase)
+            localStorage.removeItem('firebaseToken')
+
         return auth.signOut()
-      
+
     }
-    
+
     const updateEmail = (email) => {
 
         return user.updateEmail(email)
@@ -116,17 +121,32 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
 
-        const authState = auth.onAuthStateChanged((userdata) => {
+        const authState = auth.onAuthStateChanged((user) => {
 
             setLoading(false)
-
-            if (userdata) {
-                setUser(userdata);
+            console.log("kirjautuminen onnistui!" + user)
+            setUser(user);
+            if (user) {
 
                 // kirjautuminen onnistui!
-                history.push("/")
 
-                console.log("kirjautuminen onnistui!")
+                try {
+
+                    const token = localStorage.getItem('token')
+
+                    if (user.getIdToken() == null || token !== null)
+                        return false
+
+                    user.getIdToken().then(function (idToken) {
+
+                        console.log("firebase token: " + idToken)
+
+                        localStorage.setItem('firebaseToken', idToken)
+
+                    });
+                } catch (err) {
+                    console.log(err)
+                }
 
             }
         })

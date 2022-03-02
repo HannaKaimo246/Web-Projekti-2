@@ -70,6 +70,8 @@ router.post("/api/login", urlencodedParser,
     (async () => { // IIFE (Immediately Invoked Function Expression)
         try {
 
+            console.log("sahkoposti:" + jsonObj.sahkoposti)
+
             const rows = await query(sql,[jsonObj.sahkoposti]);
 
                 /**
