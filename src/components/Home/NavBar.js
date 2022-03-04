@@ -125,6 +125,12 @@ const NavBar = () => {
                                 className="ion-md-chatbubbles"/></Link>
                         </li>
                     }
+                    {!user &&
+                        <li>
+                            <Link className="navstyles" to="/api/openchat">Chat<i
+                                className="ion-md-chatbubbles"/></Link>
+                        </li>
+                    }
                     <li>
                         <Link className="navstyles" to="/api/map">Kartta<i className="ion-ios-map" /></Link>
                     </li>

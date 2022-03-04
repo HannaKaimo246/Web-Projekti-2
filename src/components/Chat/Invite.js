@@ -6,6 +6,7 @@ import '../../styles/UserList.scss'
 import {useHistory} from "react-router-dom";
 import socketIOClient from "socket.io-client";
 import Button from "@material-ui/core/Button";
+import {useAuth} from "../../contexts/AuthContext";
 
 const Invite = () => {
 
@@ -31,6 +32,8 @@ const Invite = () => {
 
     const [omaid, setomaId] = useState(0)
 
+    const { regenerateToken } = useAuth()
+
     const history = useHistory()
 
     useEffect(() => {
@@ -53,6 +56,9 @@ const Invite = () => {
             "id": response.data.value.id
         });
 
+    }).catch(function (err) {
+        console.log(err)
+        regenerateToken()
     })
 
     }, [])
@@ -80,7 +86,11 @@ const Invite = () => {
             console.log('Käyttäjien listaaminen onnistui!' + JSON.stringify(response.data))
             setusers(response.data.userdata)
 
+        }).catch(function (err) {
+            console.log(err)
+            regenerateToken()
         })
+
         setLoading(true)
     }, [pyynto, success, error, teksti])
 
@@ -114,6 +124,9 @@ const Invite = () => {
                 "kutsu": true
             });
 
+        }).catch(function (err) {
+            console.log(err)
+            regenerateToken()
         })
     }
 
@@ -149,6 +162,9 @@ const Invite = () => {
                 "kutsu": false
             });
 
+        }).catch(function (error) {
+            console.log(error)
+            regenerateToken()
         })
 
     }
@@ -194,9 +210,16 @@ const Invite = () => {
 
         },[])
 
+    const handleList = () => {
+
+        history.push('/api/hae')
+
+    }
+
     return (
         <section id="hakukenttalista">
             <h1>Käyttäjien pyynnöt</h1>
+            <section id="sisalto2">
             <Alert show={success} variant="success" transition={false}>
                 <Alert.Heading>{teksti}</Alert.Heading>
                 <div className="d-flex justify-content-end">
@@ -221,6 +244,7 @@ const Invite = () => {
                     </tr>)}
                 </tbody>
             </Table>
+            </section>
 
             { users.length <= 0 && loading &&
                 <section className="eituloksia">
@@ -230,6 +254,7 @@ const Invite = () => {
 
             <section id="haku">
                 <button onClick={handleBack}>Takaisin</button>
+                <button onClick={handleList}>Lisää kaveri</button>
             </section>
 
         </section>

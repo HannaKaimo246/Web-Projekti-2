@@ -12,7 +12,7 @@ const PrivateChatPage = () => {
 
     const socket = socketIOClient(ENDPOINT)
 
-    const {user} = useAuth()
+    const {user, regenerateToken } = useAuth()
 
     const [messages, setMessages] = useState([])
 
@@ -105,6 +105,7 @@ const PrivateChatPage = () => {
             }).catch(function (error) {
             console.log("tokenni: " + token)
             console.log("Virhe: " + error)
+            regenerateToken()
         });
 
     }
@@ -160,6 +161,7 @@ const PrivateChatPage = () => {
 
         }).catch(function (error) {
             console.log("Virhe: " + error)
+            regenerateToken()
         });
 
 
@@ -216,6 +218,7 @@ const PrivateChatPage = () => {
 
                 }).catch(function (error) {
                     console.log("Virhe: " + error)
+                    regenerateToken()
                 });
 
         } catch (error) {
@@ -277,6 +280,7 @@ const PrivateChatPage = () => {
 
                 }).catch(function (error) {
                     console.log("Virhe: " + error)
+                    regenerateToken()
                 });
 
         } catch (error) {
@@ -388,6 +392,7 @@ const PrivateChatPage = () => {
 
                 }).catch(function (error) {
                 console.log("Virhe: " + error)
+                regenerateToken()
             });
 
         } catch (error) {
@@ -437,6 +442,7 @@ const PrivateChatPage = () => {
 
                 }).catch(function (error) {
                     console.log("Virhe: " + error)
+                    regenerateToken()
                 });
 
         } catch (error) {
@@ -548,6 +554,8 @@ const PrivateChatPage = () => {
     useEffect(() => {
         (async () => { // IIFE (Immediately Invoked Function Expression)
 
+            console.log("toimii?")
+
             /**
              * Haetaan kavereita listalta.
              */
@@ -601,12 +609,15 @@ const PrivateChatPage = () => {
                         }
 
                     }).catch(function (error) {
+                        console.log("toimii?2")
                         console.log("Virhe: " + error)
+                        regenerateToken()
                     });
 
                 setLoading(true)
 
             } catch (error) {
+                console.log("toimii?3")
                 console.log(error);
             }
 

@@ -6,8 +6,11 @@ import '../../styles/UserList.scss'
 import {useHistory} from "react-router-dom";
 import socketIOClient from "socket.io-client";
 import Button from "@material-ui/core/Button";
+import {useAuth} from "../../contexts/AuthContext";
 
 const UserList = () => {
+
+    const { regenerateToken } = useAuth()
 
     const ENDPOINT = "http://localhost:8080"
 
@@ -54,6 +57,9 @@ const UserList = () => {
                 "id": response.data.value.id
             });
 
+        }).catch(function (err) {
+            console.log(err)
+            regenerateToken()
         })
 
     }, [])
@@ -77,7 +83,12 @@ const UserList = () => {
                 console.log('Käyttäjien listaaminen onnistui!' + JSON.stringify(response.data))
                 setusers(response.data.userdata)
 
-            })
+            }).catch(function (err) {
+                console.log(err)
+                regenerateToken()
+        })
+
+
             setLoading(true)
     }, [hae, pyynto, teksti, error, success])
 
@@ -96,8 +107,6 @@ const UserList = () => {
         if (token == null || value == null)
             return false
 
-
-
         const inviteObject = {
             vastaanottaja: value
         }
@@ -114,6 +123,9 @@ const UserList = () => {
                 "id": response.data.id
             });
 
+        }).catch(function (err) {
+            console.log(err)
+            regenerateToken()
         })
     }
 
@@ -148,6 +160,9 @@ const UserList = () => {
 
             });
 
+        }).catch(function (err) {
+            console.log(err)
+            regenerateToken()
         })
 
     }
@@ -194,6 +209,7 @@ const UserList = () => {
     return (
         <section id="hakukenttalista">
             <h1>Hae Käyttäjiä</h1>
+            <section id="sisalto2">
             <Alert show={success} variant="success" transition={false}>
                 <Alert.Heading>{teksti}</Alert.Heading>
                 <div className="d-flex justify-content-end">
@@ -218,6 +234,7 @@ const UserList = () => {
                     </tr>)}
                 </tbody>
             </Table>
+            </section>
 
             { users.length <= 0 && loading &&
                 <section className="eituloksia">

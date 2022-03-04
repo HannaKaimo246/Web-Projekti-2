@@ -66,6 +66,8 @@ const Login = () => {
 
         try {
 
+               setError('')
+
                const search =  window.location.search;
                const params = new URLSearchParams(search);
                const value = params.get('ForgotPassword');
@@ -104,10 +106,13 @@ const Login = () => {
                             history.push('/');
                         }
 
-                    }
+                    } else {
+                            setError('Salasana ei täsmää!')
+                        }
 
                     }).catch(function (error) {
                         console.log(error)
+                        setError('Ei voitu kirjautua sisään!')
                     });
 
 
@@ -148,10 +153,13 @@ const Login = () => {
 
                             history.push('/');
                         }
+                    } else {
+                        setError('Sähköpostiosoite tai salasana on väärin!')
                     }
 
                 }).catch(function (error) {
                     console.log(error)
+                    setError('Ei voitu kirjautua sisään!')
                 });
 
             }

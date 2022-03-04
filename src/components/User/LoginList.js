@@ -1,4 +1,4 @@
-import React, {useEffect} from "react"
+import React, {useEffect, useState} from "react"
 
 import { GoogleOutlined, FacebookOutlined } from '@ant-design/icons'
 
@@ -7,11 +7,14 @@ import firebase from "firebase/app"
 import { auth } from "../../firebase"
 import {useAuth} from "../../contexts/AuthContext";
 import axios from "axios";
-import {useHistory} from "react-router-dom";
+import {Link, useHistory} from "react-router-dom";
+import {Alert} from "react-bootstrap";
 
 const LoginList = () => {
 
-    const { user } = useAuth()
+    const { user, logout } = useAuth()
+
+    const [error, setError] = useState('')
 
     const history = useHistory()
 
@@ -40,10 +43,19 @@ const LoginList = () => {
 
                 history.push("/")
 
+            } else {
+
+                logout()
+
+                setError('Salasana ei täsmää! Käytä tavallista kirjautumista napsauttamalla.')
+
             }
 
         }).catch(function (error) {
             console.log(error)
+            logout()
+
+            setError('Salasana ei täsmää! Käytä tavallista kirjautumista napsauttamalla.')
         });
 
 
@@ -55,6 +67,7 @@ const LoginList = () => {
     return (
         <div id='login-page'>
             <div id='login-card'>
+                <Link to="/api/user/login">{error && <Alert variant="danger">{error}</Alert>}</Link>
                 <h2>Kirjautumis vaihtoehdot</h2>
                 <div
                     className='login-button google'

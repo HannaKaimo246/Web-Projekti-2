@@ -6,6 +6,7 @@ import {auth} from '../firebase';
 import firebase from "firebase/app";
 
 import jwt from 'jwt-decode'
+import axios from "axios";
 
 const AuthContext = React.createContext();
 
@@ -75,15 +76,47 @@ export const AuthProvider = ({children}) => {
 
     }
 
-    const deleteUser = () => {
+    const regenerateToken = () => {
 
-        user.delete().then(function () {
-            // User deleted.
-        }).catch(function (error) {
-            // An error happened.
-        });
+        console.log("regeneroidaan...")
+
+        try {
+
+            const tokenObject = localStorage.getItem('token')
+
+            let token = JSON.parse(tokenObject).token
+
+            console.log("tokenni: " + token)
+
+            const objectToken = {
+                token: token
+            }
+
+            axios
+                .post('http://localhost:8080/api/regenerateToken', objectToken,
+                ).then(response => {
+
+                    if (response.status === 202) {
+
+                        console.log("token uudelleen luonti onnistui!")
+
+                        localStorage.setItem('token', JSON.stringify(response.data))
+
+                        history.go(0)
+
+                    }
+
+
+            }).catch(function (error) {
+                console.log(error)
+            });
+
+        } catch (error) {
+            console.log(error)
+        }
 
     }
+
 
     const logout = () => {
 
@@ -125,9 +158,9 @@ export const AuthProvider = ({children}) => {
 
             setLoading(false)
             console.log("kirjautuminen onnistui!" + user)
-            setUser(user);
-            if (user) {
 
+            if (user) {
+                setUser(user);
                 // kirjautuminen onnistui!
 
                 try {
@@ -161,11 +194,11 @@ export const AuthProvider = ({children}) => {
         login,
         logout,
         resetPassword,
-        deleteUser,
         userExists,
         updateEmail,
         updatePassword,
-        loginUser
+        loginUser,
+        regenerateToken
     };
 
     return (

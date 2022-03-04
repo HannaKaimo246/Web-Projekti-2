@@ -108,10 +108,13 @@ const Register = () => {
 
                     await checkSignUp()
 
+                } else {
+                    setError('Tili on olemassa!')
                 }
 
             }).catch(function (error) {
                     console.log(error)
+                   setError('Sähköpostiosoite on käytössä!')
                 });
 
            /*

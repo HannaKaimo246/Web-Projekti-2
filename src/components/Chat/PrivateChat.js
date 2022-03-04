@@ -421,6 +421,12 @@ const PrivateChat = (props) => {
 
     },[props.paikalla])
 
+    const openChat = () => {
+
+        history.push('/api/openchat')
+
+    }
+
     return (
         <div id="privatechat">
             <section className="kaverilista">
@@ -471,6 +477,7 @@ const PrivateChat = (props) => {
                         </div>
                     </section>
                     <button id="lisaa" onClick={() => hakuLista()}>Lisää kaveri</button>
+                    <button id="lisaa" onClick={() => openChat()}>Open Chat</button>
                 </section>
 
             </section>
@@ -524,7 +531,7 @@ const PrivateChat = (props) => {
                         <button type="submit" id="laheta">Lähetä</button>
                         <select value={selectedOption} onChange={handleSelectOption}>
                             <option value="uusin">Uusin</option>
-                            <option value="vanha">Vanha</option>
+                            <option value="vanha">Vanhin</option>
                         </select>
                     </Form>
                 }

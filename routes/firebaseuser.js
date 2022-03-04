@@ -102,6 +102,7 @@ router.post("/api/checkForgotPassword", VerifyFirebaseToken, function (req, res)
         }
         catch (err) {
             console.log("Database error!"+ err);
+            res.status(400).send(err);
         }
     })()
 
@@ -133,7 +134,7 @@ router.post("/api/checkUserFirebase", VerifyFirebaseToken, function (req, res) {
 
                 let insertedId = tulos[0].kayttaja_id;
 
-                const tokenValue = jwt.sign({id: insertedId, user: jsonObj.sahkoposti}, config.secret, {
+                const tokenValue = jwt.sign({id: insertedId, user: jsonObj.sahkoposti, password: jsonObj.salasana}, config.secret, {
                     expiresIn: "1h"
                 });
 
@@ -155,7 +156,7 @@ router.post("/api/checkUserFirebase", VerifyFirebaseToken, function (req, res) {
 
                     let insertedId = rows[0].kayttaja_id;
 
-                    const tokenValue = jwt.sign({id: insertedId, user: jsonObj.sahkoposti}, config.secret, {
+                    const tokenValue = jwt.sign({id: insertedId, user: jsonObj.sahkoposti, password: jsonObj.salasana}, config.secret, {
                         expiresIn: "1h"
                     });
 
@@ -181,6 +182,7 @@ router.post("/api/checkUserFirebase", VerifyFirebaseToken, function (req, res) {
         }
         catch (err) {
             console.log("Database error!"+ err);
+            res.status(400).send(err);
 
         }
     })()

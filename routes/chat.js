@@ -106,6 +106,7 @@ router.get("/api/users", VerifyToken, function (req, res) {
         }
         catch (err) {
             console.log("Database error! api/users " + err);
+            res.status(400).send(err);
         }
     })()
 
@@ -177,6 +178,7 @@ router.get("/api/userDetail", VerifyToken,
         }
         catch (err) {
             console.log("Database error!"+ err + "1");
+            res.status(400).send(err);
         }
     })()
 
@@ -214,6 +216,7 @@ router.get("/api/searchFriends", VerifyToken, function (req, res) {
         }
         catch (err) {
             console.log("Database error!"+ err);
+            res.status(400).send(err);
         }
     })()
 
@@ -259,6 +262,7 @@ router.delete("/api/deleteUser", VerifyToken, function (req, res) {
         }
         catch (err) {
             console.log("Database error!"+ err);
+            res.status(400).send(err);
         }
     })()
 
@@ -296,6 +300,7 @@ router.delete("/api/deleteUserMessage", VerifyToken, function (req, res) {
         }
         catch (err) {
             console.log("Database error! 123 "+ err);
+            res.status(400).send(err);
         }
     })()
 
