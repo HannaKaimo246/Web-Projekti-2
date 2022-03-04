@@ -9,6 +9,8 @@ import PasswordStrengthBar from 'react-password-strength-bar'
 import { useAuth } from "../../contexts/AuthContext"
 import axios from "axios"
 import {useHistory} from "react-router-dom";
+import {auth} from "../../firebase";
+import firebase from "firebase";
 
 const Register = () => {
 
@@ -22,7 +24,7 @@ const Register = () => {
 
     const formRef = useRef(null)
 
-    const { signup } = useAuth()
+    const { signup, loginUser } = useAuth()
 
     const [error, setError] = useState('')
 
@@ -96,7 +98,7 @@ const Register = () => {
 
            }
 
-            axios
+           await axios
                 .post('http://localhost:8080/api/register', userObject
                 ).then(async response => {
 
@@ -106,16 +108,57 @@ const Register = () => {
 
                     await checkSignUp()
 
-                    handleReset()
-
-                    if (_isMounted)
-                         history.push('/');
-
+                } else {
+                    setError('Tili on olemassa!')
                 }
 
             }).catch(function (error) {
                     console.log(error)
+                   setError('Sähköpostiosoite on käytössä!')
                 });
+
+           /*
+            * Kirjaudutaan sisään
+            */
+
+            const userObject2 = {
+                sahkoposti: newEmail,
+                salasana: newPassword,
+                salasana2: newPasswordConfirm
+
+            }
+
+           await axios
+                .post('http://localhost:8080/api/login', userObject2
+                ).then(response => {
+
+                if (response.status === 202) {
+
+                    // Kirjautuminen onnistui!
+
+                    localStorage.setItem('token', JSON.stringify(response.data))
+
+                    let tokenArvo = localStorage.getItem('token');
+
+                    let tokenObject = JSON.parse(tokenArvo);
+
+                    console.log("Token localstoragessa: " + tokenObject.token)
+
+                    handleReset()
+
+                    if (_isMounted) {
+
+                        loginUser({email: newEmail})
+
+                        history.push('/');
+                    }
+                }
+
+            }).catch(function (error) {
+                console.log(error)
+            });
+
+
 
         } catch {
             setError('Tilin luomisessa tapahtui virhe. Yritä hetken kuluttua uudelleen.')

@@ -80,9 +80,9 @@ const Sockets = (io) => {
          * Seuraava toiminto lähettää kaikille selaimille tiedon että joku kirjoittaa openchatissa.
          */
 
-        socket.on('typing', value => {
+        socket.on('typing', (value) => {
 
-            io.emit('typing', value);
+           socket.broadcast.emit('typing', value);
 
         });
 
@@ -116,14 +116,8 @@ const Sockets = (io) => {
          */
 
         socket.on('msg', msg => {
-            let message = {
-                username: socket.username,
-                msg: msg
-            };
 
-
-
-            socket.broadcast.emit('msg', message)
+            socket.broadcast.emit('msg', msg)
 
         });
 

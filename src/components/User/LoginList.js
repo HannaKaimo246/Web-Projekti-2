@@ -1,15 +1,73 @@
-import React from "react"
+import React, {useEffect, useState} from "react"
 
 import { GoogleOutlined, FacebookOutlined } from '@ant-design/icons'
 
 import firebase from "firebase/app"
 
-import { auth } from "../../AuthFirebase"
+import { auth } from "../../firebase"
+import {useAuth} from "../../contexts/AuthContext";
+import axios from "axios";
+import {Link, useHistory} from "react-router-dom";
+import {Alert} from "react-bootstrap";
 
-export default function Login() {
+const LoginList = () => {
+
+    const { user, logout } = useAuth()
+
+    const [error, setError] = useState('')
+
+    const history = useHistory()
+
+    useEffect(() => {
+
+        if (user == null)
+            return false
+
+        const userObject = {
+            sahkoposti: user.email,
+            salasana: user.uid
+        }
+
+        axios
+            .post('http://localhost:8080/api/checkUserFirebase', userObject,
+                {headers: {Authorization: 'Bearer ' + localStorage.getItem('firebaseToken')}}
+            ).then(response => {
+
+            if (response.status === 202) {
+
+                console.log("firebase tarkistus23: " + JSON.stringify(response.data))
+
+                localStorage.setItem('token', JSON.stringify(response.data))
+
+                localStorage.removeItem('firebaseToken')
+
+                history.push("/")
+
+            } else {
+
+                logout()
+
+                setError('Salasana ei täsmää! Käytä tavallista kirjautumista napsauttamalla.')
+
+            }
+
+        }).catch(function (error) {
+            console.log(error)
+            logout()
+
+            setError('Salasana ei täsmää! Käytä tavallista kirjautumista napsauttamalla.')
+        });
+
+
+        console.log("just:" + user)
+
+    },[user])
+
+
     return (
         <div id='login-page'>
             <div id='login-card'>
+                <Link to="/api/user/login">{error && <Alert variant="danger">{error}</Alert>}</Link>
                 <h2>Kirjautumis vaihtoehdot</h2>
                 <div
                     className='login-button google'
@@ -30,3 +88,5 @@ export default function Login() {
         </div>
     )
 }
+
+export default LoginList

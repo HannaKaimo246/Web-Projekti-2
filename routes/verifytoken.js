@@ -1,5 +1,7 @@
-var jwt = require('jsonwebtoken');
-var config = require('./config');
+const jwt = require('jsonwebtoken');
+const config = require('./config');
+const query = require("./db");
+const bcrypt = require("bcryptjs");
 
 /**
  * Tarkistaa onko selaimesta tullut json web token kelvollinen.
@@ -15,13 +17,12 @@ function verifyToken(req, res, next) {
 
         jwt.verify(token, config.secret, (err, user) => {
 
-            if (err) return res.sendStatus(403)
-
             req.userData = user
 
             next()
         })
-    }catch (err) {
+    } catch (err) {
+
         res.status(403).json({
             message: 'Tarkistus epäonnistui!'
         });

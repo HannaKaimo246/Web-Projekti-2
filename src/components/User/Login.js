@@ -59,36 +59,75 @@ const Login = () => {
         if (form.checkValidity() === false)
             return
 
+        const userObject = {
+            sahkoposti: newEmail,
+            salasana: newPassword
+        }
+
         try {
 
-            if (id == "forgotpassword") {
+               setError('')
+
+               const search =  window.location.search;
+               const params = new URLSearchParams(search);
+               const value = params.get('ForgotPassword');
+
+            if (value) {
 
                 // unohtunut salasana
 
+                await login(newEmail, newPassword)
 
-                /*
-   await login(emailRef.current.value, passwordRef.current.value)
+                const ifuserExists = await userExists(newEmail)
 
-   const ifuserExists = await userExists(newEmail)
+                if (ifuserExists) {
 
-   if (ifuserExists) {
+                    console.log("Kayttaja on olemassa firebasessa!")
 
-       console.log("on olemassa!")
+                    axios
+                        .post('http://localhost:8080/api/checkForgotPassword', userObject,
+                    {headers: {Authorization: 'Bearer ' + localStorage.getItem('firebaseToken')}}
+                        ).then(response => {
 
-   } else {
+                        if (response.status === 202) {
 
-       console.log("ei ole olemassa!")
+                        console.log("firebase tarkistus: " + JSON.stringify(response.data))
 
-   }
-*/
+                        localStorage.setItem('token', JSON.stringify(response.data))
+
+                        localStorage.removeItem('firebaseToken')
+
+                        handleReset()
+
+                        if (_isMounted) {
+
+                            loginUser({email: newEmail})
+
+                            history.push('/');
+                        }
+
+                    } else {
+                            setError('Salasana ei täsmää!')
+                        }
+
+                    }).catch(function (error) {
+                        console.log(error)
+                        setError('Ei voitu kirjautua sisään!')
+                    });
+
+
+
+                } else {
+
+                    console.log("Kayttaja ei ole olemassa firebasessa!")
+
+                }
+
                 console.log("id: " + id)
 
             } else {
 
-                const userObject = {
-                    sahkoposti: newEmail,
-                    salasana: newPassword
-                }
+
 
                 axios
                     .post('http://localhost:8080/api/login', userObject
@@ -114,10 +153,13 @@ const Login = () => {
 
                             history.push('/');
                         }
+                    } else {
+                        setError('Sähköpostiosoite tai salasana on väärin!')
                     }
 
                 }).catch(function (error) {
                     console.log(error)
+                    setError('Ei voitu kirjautua sisään!')
                 });
 
             }
