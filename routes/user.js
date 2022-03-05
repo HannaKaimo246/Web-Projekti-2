@@ -210,9 +210,23 @@ router.post("/api/register", urlencodedParser,
 
 router.get("/api/check", VerifyToken, function (req, res) {
 
-    res.json({
-        value: req.userData
-    });
+    let sql = "SELECT * FROM kayttaja WHERE kayttaja_id = ?";
+
+    (async () => {
+        try {
+
+             const rows = await query(sql,[req.userData.id]);
+
+            res.json({
+                value: req.userData,
+                user: rows
+            })
+
+        } catch (err) {
+            console.log("Database error!"+ err);
+            res.status(400).send(err);
+        }
+    })()
 
 });
 
@@ -299,11 +313,11 @@ router.post("/api/invites", urlencodedParser, VerifyToken,
                     res.status(201).json({
                         id: jsonObj.vastaanottaja
                     })
+
+                } else {
+
+                    res.status(403).send("Kutsun lähettämisessä tapahtui virhe!")
                 }
-
-
-                res.status(403).send("Kutsun lähettämisessä tapahtui virhe!")
-
 
             }
             catch (err) {
@@ -445,7 +459,7 @@ router.get("/api/receiveInvites", VerifyToken, function (req, res) {
             })
 
         } catch (err) {
-            console.log("Database error!"+ err);
+            console.log("Database error receiveInvites!"+ err);
             res.status(400).send(err);
         }
     })()

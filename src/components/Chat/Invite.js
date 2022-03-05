@@ -32,7 +32,7 @@ const Invite = () => {
 
     const [omaid, setomaId] = useState(0)
 
-    const { regenerateToken } = useAuth()
+    const { regenerateToken, logout } = useAuth()
 
     const history = useHistory()
 
@@ -41,7 +41,7 @@ const Invite = () => {
         const tokenObject = localStorage.getItem('token')
 
         if (tokenObject == null)
-            return false
+            return logout()
 
         let token = JSON.parse(tokenObject).token
 
@@ -72,7 +72,7 @@ const Invite = () => {
         const tokenObject = localStorage.getItem('token')
 
         if (tokenObject == null)
-            return false
+            return logout()
 
         let token = JSON.parse(tokenObject).token
 
@@ -102,7 +102,7 @@ const Invite = () => {
         let token = JSON.parse(tokenObject).token
 
         if (token == null || value == null)
-            return false
+            return logout()
 
 
 
@@ -135,7 +135,7 @@ const Invite = () => {
         const tokenObject = localStorage.getItem('token')
 
         if (tokenObject == null || value == null)
-            return false
+            return logout()
 
         let token = JSON.parse(tokenObject).token
 

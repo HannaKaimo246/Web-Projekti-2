@@ -12,7 +12,7 @@ const PrivateChatPage = () => {
 
     const socket = socketIOClient(ENDPOINT)
 
-    const {user, regenerateToken } = useAuth()
+    const {user, regenerateToken, logout } = useAuth()
 
     const [messages, setMessages] = useState([])
 
@@ -53,7 +53,7 @@ const PrivateChatPage = () => {
         const tokenObject = localStorage.getItem('token')
 
         if (tokenObject == null)
-            return false
+            return logout()
 
         let token = JSON.parse(tokenObject).token;
 
@@ -118,7 +118,7 @@ const PrivateChatPage = () => {
         const tokenObject = localStorage.getItem('token')
 
         if (tokenObject == null)
-            return false
+            return logout()
 
         let token = JSON.parse(tokenObject).token;
 
@@ -190,7 +190,7 @@ const PrivateChatPage = () => {
         const tokenObject = localStorage.getItem('token')
 
         if (tokenObject == null)
-            return false
+            return logout()
 
         let token = JSON.parse(tokenObject).token
 
@@ -233,7 +233,7 @@ const PrivateChatPage = () => {
         const tokenObject = localStorage.getItem('token')
 
         if (tokenObject == null)
-            return false
+            return logout()
 
         let token = JSON.parse(tokenObject).token;
 
@@ -324,8 +324,8 @@ const PrivateChatPage = () => {
 
         const tokenObject = localStorage.getItem('token')
 
-        if (tokenObject == null || filter == '' || id2 == '')
-            return false
+        if (tokenObject == null)
+            return logout()
 
         let token = JSON.parse(tokenObject).token;
 
@@ -413,7 +413,7 @@ const PrivateChatPage = () => {
         const tokenObject = localStorage.getItem('token')
 
         if (tokenObject == null)
-            return false
+            return logout()
 
         let token = JSON.parse(tokenObject).token;
 
@@ -563,7 +563,7 @@ const PrivateChatPage = () => {
             const tokenObject = localStorage.getItem('token')
 
             if (tokenObject == null)
-                return false
+                return logout()
 
             let token = JSON.parse(tokenObject).token;
 

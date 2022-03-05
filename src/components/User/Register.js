@@ -210,7 +210,7 @@ const Register = () => {
                       <Form.Group id="password">
                           <Form.Label>Salasana</Form.Label>
                           <Form.Control
-                           required pattern="[a-zA-Z0-9]{8,}"
+                           required pattern="[a-zA-Z0-9_@.!+-,?/]{8,}"
                            type="password"
                            placeholder="Anna salasana"
                            name="salasana"
