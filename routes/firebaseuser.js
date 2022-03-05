@@ -111,6 +111,8 @@ router.post("/api/checkForgotPassword", VerifyFirebaseToken, function (req, res)
 
 router.post("/api/checkUserFirebase", VerifyFirebaseToken, function (req, res) {
 
+    console.log("firebase...")
+
     let sql = "SELECT * FROM kayttaja WHERE sahkoposti = ?";
 
     let sql2 = "INSERT into kayttaja (sahkoposti, salasana)"
