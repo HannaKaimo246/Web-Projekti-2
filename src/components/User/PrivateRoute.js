@@ -12,7 +12,7 @@ const PrivateRoute = ({ component: Component, ...rest }) => {
         <Route
             {...rest}
             render={props => {
-               return user ? <Component {...props} /> : <Redirect to="/login" />
+               return user ? <Component {...props} /> : <Redirect to="/api/user/login" />
             }}
             >
         </Route>

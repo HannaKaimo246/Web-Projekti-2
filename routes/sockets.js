@@ -218,36 +218,17 @@ const Sockets = (io) => {
          */
 
         /**
-         * Asetetaan markkerit valituille kavereille.
-         */
-
-        socket.on("setMarkers", function (array) {
-
-           array.tiedot.forEach(roomi =>  socket.join(roomi));
-
-        })
-
-        /**
-         * Asetetaan oma markkeri valituille kavereille.
-         */
-
-        socket.on("myMarker", function (value) {
-
-            socket.join(value);
-
-        })
-
-        /**
          * Seuraava toiminto lähettää valituille selaimille tiedon lisäämään markkeri muiden kartoille.
          */
 
-        socket.on("showMarkers", function (array, coords) {
+        socket.on("shareLocation", function (array) {
 
             let arvo = socket;
 
-           array.tiedot.forEach(roomi => arvo.to(roomi).emit("showMarkers", coords));
+            array.users.forEach(roomi => arvo.to(roomi).emit("showMarkers", array) );
 
         })
+
 
     });
 

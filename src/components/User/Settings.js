@@ -10,7 +10,7 @@ const Settings = () => {
 
     const { user, updatePassword, updateEmail } = useAuth()
 
-    const { login } = useAuth()
+    const { login, logout } = useAuth()
 
     const [error, setError] = useState('')
 
@@ -61,7 +61,7 @@ const Settings = () => {
         const tokenObject = localStorage.getItem('token')
 
         if (tokenObject == null)
-            return false
+            return logout()
 
         let token = JSON.parse(tokenObject).token
 
@@ -151,7 +151,7 @@ const Settings = () => {
         const tokenObject = localStorage.getItem('token')
 
         if (tokenObject == null)
-            return false
+            return logout()
 
         let token = JSON.parse(tokenObject).token
 

@@ -26,7 +26,7 @@ const NavBar = () => {
     const handleLogout = async () => {
         try {
             await logout()
-            history.push("/api/login")
+            history.push("/api/user/login")
         } catch (error) {
             console.log("Ei voitu kirjautua ulos!")
         }
@@ -51,7 +51,7 @@ const NavBar = () => {
         const tokenObject = localStorage.getItem('token')
 
         if (tokenObject == null)
-            return false
+            return logout()
 
         let token = JSON.parse(tokenObject).token
 
@@ -75,7 +75,12 @@ const NavBar = () => {
             ).then(response => {
             console.log('Käyttäjien ilmoittaminen onnistui!' + JSON.stringify(response.data))
 
-            setIlmoitus(response.data.userdata.length)
+            if (response.status === 200) {
+                setIlmoitus(response.data.userdata.length)
+            } else {
+                history.push("api/user/login")
+            }
+
         })
 
     }, [])

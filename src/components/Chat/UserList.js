@@ -10,7 +10,7 @@ import {useAuth} from "../../contexts/AuthContext";
 
 const UserList = () => {
 
-    const { regenerateToken } = useAuth()
+    const { regenerateToken, logout } = useAuth()
 
     const ENDPOINT = "http://localhost:8080"
 
@@ -42,7 +42,7 @@ const UserList = () => {
         const tokenObject = localStorage.getItem('token')
 
         if (tokenObject == null)
-            return false
+            return logout()
 
         let token = JSON.parse(tokenObject).token
 
@@ -73,7 +73,7 @@ const UserList = () => {
         let token = JSON.parse(tokenObject).token
 
         if (token == null)
-            return false
+            return logout()
 
         console.log('effect')
         axios
@@ -105,7 +105,7 @@ const UserList = () => {
         let token = JSON.parse(tokenObject).token
 
         if (token == null || value == null)
-            return false
+            return logout()
 
         const inviteObject = {
             vastaanottaja: value
@@ -136,7 +136,7 @@ const UserList = () => {
         let token = JSON.parse(tokenObject).token
 
         if (token == null || value == null)
-            return false
+            return logout()
 
         const inviteObject = {
             vastaanottaja: value
