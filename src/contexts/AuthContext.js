@@ -120,19 +120,21 @@ export const AuthProvider = ({children}) => {
 
     const logout = () => {
 
+        console.log("kirjaudu ulos")
+
         const token = localStorage.getItem('token')
 
         const tokenFirebase = localStorage.getItem('firebaseToken')
 
         setUser(null)
 
-        if (token)
+        if (token) {
             localStorage.removeItem('token')
+            auth.signOut()
+        }
 
         if (tokenFirebase)
             localStorage.removeItem('firebaseToken')
-
-        return auth.signOut()
 
     }
 
