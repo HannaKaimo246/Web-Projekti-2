@@ -5,10 +5,10 @@ const mysql = require('mysql');
  */
 
 const conn = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'oma',
-    database: 'chatti_db'
+    host: "127.0.0.1",
+    user: "root",
+    password: "",
+    database: "chatti_db"
 });
 
 conn.connect(function(err) {
