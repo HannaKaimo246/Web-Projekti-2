@@ -1,10 +1,6 @@
 import React, {useEffect, useRef, useState} from "react";
 
-import {Form, Button, Card, Alert, Col, Row} from "react-bootstrap";
-
-import '../../styles/Register.scss'
-
-import PasswordStrengthBar from 'react-password-strength-bar'
+import {Form, Card, Alert, Row} from "react-bootstrap";
 
 import { useAuth } from "../../contexts/AuthContext"
 import axios from "axios"
@@ -12,7 +8,7 @@ import {useHistory} from "react-router-dom";
 import {auth} from "../../firebase";
 import firebase from "firebase";
 
-const Register = () => {
+export const Register = () => {
 
     const [ newEmail, setNewEmail ] = useState('')
 
@@ -196,16 +192,15 @@ const Register = () => {
                       <Row className="mb-3">
                       <Form.Group id="email">
                           <Form.Label>Sähköpostiosoite</Form.Label>
-                          <Form.Control
+                          <Form.Control id="sahkoposti"
                           type="email"
                           placeholder="Anna sähköpostiosoite"
                           name="sahkopostiosoite"
-                          required
                           onChange={handleEmailChange}
                           value={newEmail}
                           />
                           <Form.Control.Feedback type="invalid">Sähköpostiosoite ei ole kelvollinen!</Form.Control.Feedback>
-                          <Form.Control.Feedback type="valid">Salasana muotoilu oikein!</Form.Control.Feedback>
+                          <Form.Control.Feedback type="valid">Sähköposti muotoiltu oikein!</Form.Control.Feedback>
                       </Form.Group>
                       <Form.Group id="password">
                           <Form.Label>Salasana</Form.Label>
@@ -240,7 +235,7 @@ const Register = () => {
                </Card.Body>
            </Card>
            </div>
-        </>
+          </>
     )
 
 }
