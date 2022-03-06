@@ -18,6 +18,7 @@ const admin = require('firebase-admin');
 const serviceAccount = require('../serviceAccountKey.json');
 const jwt = require("jsonwebtoken");
 const config = require("./config");
+const {check, validationResult} = require("express-validator");
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
@@ -56,9 +57,12 @@ const VerifyFirebaseToken = (req, res, next) => {
 
 router.post("/api/checkForgotPassword", VerifyFirebaseToken, function (req, res) {
 
-    console.log("firebase lupa myönnetty.")
+
+
 
     let jsonObj = req.body;
+
+    console.log("firebase lupa myönnetty." + JSON.stringify(jsonObj))
 
     let sql = "SELECT * FROM kayttaja WHERE sahkoposti = ?";
 
@@ -109,9 +113,17 @@ router.post("/api/checkForgotPassword", VerifyFirebaseToken, function (req, res)
 
 })
 
-router.post("/api/checkUserFirebase", VerifyFirebaseToken, function (req, res) {
+router.post("/api/checkUserFirebase", VerifyFirebaseToken, [check('salasana').isLength({ min: 8 }).withMessage("Salasana täytyy olla vähintään 8 merkkiä pitkä!")], function (req, res) {
 
-    console.log("firebase...")
+
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(422).json({
+            success: false,
+            errors: errors.array()
+        });
+    }
 
     let sql = "SELECT * FROM kayttaja WHERE sahkoposti = ?";
 
@@ -146,7 +158,8 @@ router.post("/api/checkUserFirebase", VerifyFirebaseToken, function (req, res) {
 
                 res.status(202).json({
                     token: tokenValue,
-                    user: jsonObj.sahkoposti
+                    user: jsonObj.sahkoposti,
+                    value: req.user
                 });
 
 
@@ -188,6 +201,7 @@ router.post("/api/checkUserFirebase", VerifyFirebaseToken, function (req, res) {
 
         }
     })()
+
 
 
 })

@@ -7,6 +7,7 @@ import firebase from "firebase/app";
 
 import jwt from 'jwt-decode'
 import axios from "axios";
+import firebaseRef from "bootstrap/js/src/dom/event-handler";
 
 const AuthContext = React.createContext();
 
@@ -120,8 +121,6 @@ export const AuthProvider = ({children}) => {
 
     const logout = () => {
 
-        console.log("kirjaudu ulos")
-
         const token = localStorage.getItem('token')
 
         const tokenFirebase = localStorage.getItem('firebaseToken')
@@ -131,10 +130,11 @@ export const AuthProvider = ({children}) => {
         if (token) {
             localStorage.removeItem('token')
             auth.signOut()
+            indexedDB.deleteDatabase('firebaseLocalStorageDb');
         }
 
         if (tokenFirebase)
-            localStorage.removeItem('firebaseToken')
+               localStorage.removeItem('firebaseToken')
 
     }
 
@@ -159,12 +159,16 @@ export const AuthProvider = ({children}) => {
         const authState = auth.onAuthStateChanged((user) => {
 
             setLoading(false)
-            console.log("kirjautuminen onnistui!" + user)
 
             if (user) {
-                setUser(user);
-                // kirjautuminen onnistui!
 
+                if (user.email == null) {
+                    setUser(user.providerData[0])
+                } else if (user.email !== null) {
+                    setUser(user)
+                }
+
+                // kirjautuminen onnistui!
                 try {
 
                     const token = localStorage.getItem('token')
@@ -181,6 +185,7 @@ export const AuthProvider = ({children}) => {
                     });
                 } catch (err) {
                     console.log(err)
+                    console.log("ei voi luoda firebase tokennia!")
                 }
 
             }
@@ -188,8 +193,8 @@ export const AuthProvider = ({children}) => {
 
         return authState
 
-    }, [user, history]);
-
+    });
+//, [user, history]
     const value = {
         user,
         signup,

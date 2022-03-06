@@ -140,9 +140,9 @@ const Settings = () => {
 
     }
 
-    const imageHandler = (event) => {
+    const imageHandler = async (event) => {
 
-        const file = event.target.files[0]
+       const file = event.target.files[0]
 
         const formData = new FormData()
 

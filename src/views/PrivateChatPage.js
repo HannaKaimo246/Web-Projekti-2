@@ -329,6 +329,9 @@ const PrivateChatPage = () => {
 
         let token = JSON.parse(tokenObject).token;
 
+        if (filter == '' || id2 == '')
+            return false
+
         try {
 
             axios
@@ -553,8 +556,6 @@ const PrivateChatPage = () => {
 
     useEffect(() => {
         (async () => { // IIFE (Immediately Invoked Function Expression)
-
-            console.log("toimii?")
 
             /**
              * Haetaan kavereita listalta.

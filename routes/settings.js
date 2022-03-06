@@ -54,6 +54,7 @@ router.put("/api/settings/email", urlencodedParser, [check('sahkoposti').isEmail
 
         } catch (err) {
             console.log("Database error!"+ err);
+            res.status(400).send(err);
         }
     })()
 
@@ -107,6 +108,7 @@ router.put("/api/settings/password", urlencodedParser, [check('salasana').isLeng
 
         } catch (err) {
             console.log("Database error!"+ err);
+            res.status(400).send(err);
         }
     })()
 

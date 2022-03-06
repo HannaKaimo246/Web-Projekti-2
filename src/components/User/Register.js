@@ -205,7 +205,7 @@ const Register = () => {
                           value={newEmail}
                           />
                           <Form.Control.Feedback type="invalid">Sähköpostiosoite ei ole kelvollinen!</Form.Control.Feedback>
-                          <Form.Control.Feedback type="valid">Salasana muotoilu oikein!</Form.Control.Feedback>
+                          <Form.Control.Feedback type="valid">Sähköpostiosoite on kelvollinen!</Form.Control.Feedback>
                       </Form.Group>
                       <Form.Group id="password">
                           <Form.Label>Salasana</Form.Label>
