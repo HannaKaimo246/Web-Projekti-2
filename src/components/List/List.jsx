@@ -25,7 +25,7 @@ const List = ({type, setType, rating, setRating, coordinates, account}) => {
 
     const [time, setTime] = useState()
 
-    const { user, logout } = useAuth()
+    const {user, logout} = useAuth()
 
     useEffect(() => {
 
@@ -40,24 +40,42 @@ const List = ({type, setType, rating, setRating, coordinates, account}) => {
             .get('http://localhost:8080/api/mapUsers',
                 {headers: {Authorization: 'Bearer: ' + token}}
             ).then(response => {
-            console.log('Kartan listaaminen onnistui!' + JSON.stringify(response.data))
 
-            let arr = []
+            if (response.status === 200) {
 
-            response.data.userdata.forEach((element, index) => {
+                console.log('Kartan listaaminen onnistui!' + JSON.stringify(response.data))
 
-                if (element.kuva) {
-                    arr.push({id: element.kayttaja_id, name: element.sahkoposti, photo: 'http://localhost:8080/' + element.kuva});
-                } else {
-                    arr.push({id: element.kayttaja_id, name: element.sahkoposti, photo: 'http://localhost:8080/uploads/default-user.png'});
-                }
+                let arr = []
+
+                response.data.userdata.forEach((element, index) => {
+
+                    if (element.kuva) {
+                        arr.push({
+                            id: element.kayttaja_id,
+                            name: element.sahkoposti,
+                            photo: 'http://localhost:8080/' + element.kuva
+                        });
+                    } else {
+                        arr.push({
+                            id: element.kayttaja_id,
+                            name: element.sahkoposti,
+                            photo: 'http://localhost:8080/uploads/default-user.png'
+                        });
+                    }
 
 
-            });
+                });
 
-            setUsers(arr)
+                setUsers(arr)
 
-        })
+            }
+
+        }).catch(function (error) {
+
+            console.log("Virhe: " + error)
+
+        });
+
 
     }, [])
 
@@ -83,7 +101,6 @@ const List = ({type, setType, rating, setRating, coordinates, account}) => {
     }
 
 
-
     const locationShareOn = () => {
 
         setSijaintiNappi(true)
@@ -106,7 +123,7 @@ const List = ({type, setType, rating, setRating, coordinates, account}) => {
         }, 10000))
 
     }
-    
+
     const locationShareOff = () => {
 
         console.log("perutetaan sijaintia...")
@@ -138,15 +155,16 @@ const List = ({type, setType, rating, setRating, coordinates, account}) => {
                 </Select>
             </FormControl>
             <FormControl className={classes.formControl}>
-            { user && !sijaintiNappi && <button onClick={() => locationShareOn()}>Jaa sijainti</button> }
-            { user && sijaintiNappi && <button onClick={() => locationShareOff()}>Peruuta sijainti</button> }
+                {user && !sijaintiNappi && <button onClick={() => locationShareOn()}>Jaa sijainti</button>}
+                {user && sijaintiNappi && <button onClick={() => locationShareOff()}>Peruuta sijainti</button>}
             </FormControl>
             <Grid container spacing={3} className={classes.list}>
                 {!user && <p>Kirjaudu sisään nähdäkseen omat kaverit!</p>}
                 {users.length == 0 && user && <p>Ei tuloksia. Lisää kaveri!</p>}
-                {users && users?.map(( user, i) => (
+                {users && users?.map((user, i) => (
                     <Grid item key={i} xs={12}>
-                        <PlaceDetails user={user} locationHandleAdd={locationHandleAdd} locationHandleRemove={locationHandleRemove} />
+                        <PlaceDetails user={user} locationHandleAdd={locationHandleAdd}
+                                      locationHandleRemove={locationHandleRemove}/>
                     </Grid>
                 ))}
             </Grid>

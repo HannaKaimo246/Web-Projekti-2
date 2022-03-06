@@ -75,7 +75,6 @@ const MapPage = () => {
                 if (kuva == null)
                     kuva = 'uploads/default-user.png'
 
-                console.log("email:" + JSON.stringify(Account))
 
                 setMarkers(current => [...current, {lat: latitude, lng: longitude, time: new Date(), sahkoposti, kuva},])
 

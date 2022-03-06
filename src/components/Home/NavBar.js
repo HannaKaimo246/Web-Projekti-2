@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from "react";
 import {Link, useHistory} from "react-router-dom";
 import {useAuth} from "../../contexts/AuthContext";
-import {auth} from "firebase";
+import firebase, {auth} from "firebase";
 import '../../styles/NavBar.scss'
 import { useMediaQuery } from 'react-responsive';
 import axios from "axios";
@@ -25,7 +25,13 @@ const NavBar = () => {
 
     const handleLogout = async () => {
         try {
+
+
+
             await logout()
+
+
+
             history.push("/api/user/login")
         } catch (error) {
             console.log("Ei voitu kirjautua ulos!")
