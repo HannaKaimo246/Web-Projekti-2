@@ -10,7 +10,7 @@ const cors = require('cors');
 const app = express();
 const server = http.createServer(app);
 app.set("trust proxy", 1);
-
+app.use(cors());
 app.use('/', serveStatic(path.join(__dirname, '/dist')));
 
 const privateChat = require('./routes/chat');
@@ -20,13 +20,15 @@ app.use(privateChat);
 const kayttaja = require('./routes/user');
 
 app.use(kayttaja);
-
+/*
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
     next();
 });
 
+
+ */
 const firebase = require('./routes/firebaseuser');
 
 app.use(firebase);
@@ -40,7 +42,7 @@ const map = require('./routes/map');
 app.use(map);
 
 
-app.use(cors());
+
 
 app.use(express.static(path.join(__dirname,'./public')));
 
