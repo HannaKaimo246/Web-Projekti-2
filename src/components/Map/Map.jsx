@@ -71,7 +71,7 @@ const Map = ({setCoordinates, setBounds, coordinates, places, markers, setMarker
                         lat={marker.lat}
                         lng={marker.lng}
                         text={marker.sahkoposti}
-                        url={'http://localhost:8080/' + marker.kuva}
+                        url={'https://ariten.herokuapp.com/' + marker.kuva}
                     />
                 ))}
             </GoogleMapReact>

@@ -11,7 +11,7 @@ import {useAuth} from "../../contexts/AuthContext";
 
 const List = ({type, setType, rating, setRating, coordinates, account}) => {
 
-    const ENDPOINT = "http://localhost:8080"
+    const ENDPOINT = "https://ariten.herokuapp.com"
 
     const socket = socketIOClient(ENDPOINT)
 
@@ -37,7 +37,7 @@ const List = ({type, setType, rating, setRating, coordinates, account}) => {
         let token = JSON.parse(tokenObject).token
 
         axios
-            .get('http://localhost:8080/api/mapUsers',
+            .get('https://ariten.herokuapp.com/api/mapUsers',
                 {headers: {Authorization: 'Bearer: ' + token}}
             ).then(response => {
 
@@ -53,13 +53,13 @@ const List = ({type, setType, rating, setRating, coordinates, account}) => {
                         arr.push({
                             id: element.kayttaja_id,
                             name: element.sahkoposti,
-                            photo: 'http://localhost:8080/' + element.kuva
+                            photo: 'https://ariten.herokuapp.com/' + element.kuva
                         });
                     } else {
                         arr.push({
                             id: element.kayttaja_id,
                             name: element.sahkoposti,
-                            photo: 'http://localhost:8080/uploads/default-user.png'
+                            photo: 'https://ariten.herokuapp.com/uploads/default-user.png'
                         });
                     }
 

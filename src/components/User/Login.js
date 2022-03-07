@@ -85,7 +85,7 @@ const Login = () => {
                     console.log("Kayttaja on olemassa firebasessa!")
 
                     axios
-                        .post('http://localhost:8080/api/checkForgotPassword', userObject,
+                        .post('https://ariten.herokuapp.com/api/checkForgotPassword', userObject,
                     {headers: {Authorization: 'Bearer ' + localStorage.getItem('firebaseToken')}}
                         ).then(response => {
 
@@ -130,7 +130,7 @@ const Login = () => {
 
 
                 axios
-                    .post('http://localhost:8080/api/login', userObject
+                    .post('https://ariten.herokuapp.com/api/login', userObject
                     ).then(response => {
 
                     if (response.status === 202) {

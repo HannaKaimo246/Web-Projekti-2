@@ -35,7 +35,7 @@ const LoginList = () => {
         setLoading(true)
 
         axios
-            .post('http://localhost:8080/api/checkUserFirebase', userObject,
+            .post('https://ariten.herokuapp.com/api/checkUserFirebase', userObject,
                 {headers: {Authorization: 'Bearer ' + localStorage.getItem('firebaseToken')}}
             ).then(response => {
 
@@ -95,7 +95,7 @@ const LoginList = () => {
         let token = JSON.parse(tokenObject).token
 
         axios
-            .post('http://localhost:8080/api/addImage', formData,
+            .post('https://ariten.herokuapp.com/api/addImage', formData,
                 {headers: {
                         Authorization: 'Bearer: ' + token,
                         Accept: 'multipart/form-data'

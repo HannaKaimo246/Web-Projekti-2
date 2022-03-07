@@ -15,7 +15,7 @@ const OpenChatPage = () => {
 
     const formRef = useRef(null)
 
-    const ENDPOINT = "http://localhost:8080"
+    const ENDPOINT = "https://ariten.herokuapp.com"
 
     const socket = socketIOClient(ENDPOINT)
 

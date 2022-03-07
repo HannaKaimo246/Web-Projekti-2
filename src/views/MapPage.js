@@ -15,7 +15,7 @@ import {useAuth} from "../contexts/AuthContext";
 
 const MapPage = () => {
 
-    const ENDPOINT = "http://localhost:8080"
+    const ENDPOINT = "https://ariten.herokuapp.com"
 
     const socket = socketIOClient(ENDPOINT)
 
@@ -108,7 +108,7 @@ const MapPage = () => {
         let token = JSON.parse(tokenObject).token
 
         axios
-            .get('http://localhost:8080/api/check',
+            .get('https://ariten.herokuapp.com/api/check',
                 {headers: {Authorization: 'Bearer: ' + token}}
             ).then(response => {
 

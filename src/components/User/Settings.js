@@ -73,7 +73,7 @@ const Settings = () => {
             }
 
             axios
-                .put('http://localhost:8080/api/settings/email', emailObject,
+                .put('https://ariten.herokuapp.com/api/settings/email', emailObject,
                     {headers: {
                             Authorization: 'Bearer: ' + token,
                             Accept: 'multipart/form-data'
@@ -104,7 +104,7 @@ const Settings = () => {
             }
 
             axios
-                .put('http://localhost:8080/api/settings/password', passwordObject,
+                .put('https://ariten.herokuapp.com/api/settings/password', passwordObject,
                     {headers: {
                             Authorization: 'Bearer: ' + token,
                             Accept: 'multipart/form-data'
@@ -156,7 +156,7 @@ const Settings = () => {
         let token = JSON.parse(tokenObject).token
 
         axios
-            .post('http://localhost:8080/api/addImage', formData,
+            .post('https://ariten.herokuapp.com/api/addImage', formData,
                 {headers: {
                     Authorization: 'Bearer: ' + token,
                         Accept: 'multipart/form-data'

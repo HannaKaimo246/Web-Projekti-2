@@ -95,7 +95,7 @@ export const Register = () => {
            }
 
            await axios
-                .post('http://localhost:8080/api/register', userObject
+                .post('https://ariten.herokuapp.com/api/register', userObject
                 ).then(async response => {
 
                 if (response.status === 201) {
@@ -125,7 +125,7 @@ export const Register = () => {
             }
 
            await axios
-                .post('http://localhost:8080/api/login', userObject2
+                .post('https://ariten.herokuapp.com/api/login', userObject2
                 ).then(response => {
 
                 if (response.status === 202) {

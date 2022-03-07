@@ -64,7 +64,7 @@ const PrivateChatPage = () => {
         }
 
         axios
-            .delete('http://localhost:8080/api/deleteUserMessage',
+            .delete('https://ariten.herokuapp.com/api/deleteUserMessage',
                 {headers: {Authorization: 'Bearer: ' + token, deleteobject: JSON.stringify(userObject)}}
             )
             .then(async response => {
@@ -126,7 +126,7 @@ const PrivateChatPage = () => {
             tunnus: id
         }
 
-        axios.delete('http://localhost:8080/api/deleteUser', {
+        axios.delete('https://ariten.herokuapp.com/api/deleteUser', {
                 headers: {
                     Authorization: 'Bearer: ' + token,
                     deleteobject: JSON.stringify(userObject)
@@ -198,7 +198,7 @@ const PrivateChatPage = () => {
         try {
 
             await axios
-                .get(`http://localhost:8080/api/users?page=${value}`,
+                .get(`https://ariten.herokuapp.com/api/users?page=${value}`,
                     {headers: {Authorization: 'Bearer: ' + token}}
                 )
                 .then(async response => {
@@ -245,7 +245,7 @@ const PrivateChatPage = () => {
         try {
 
             await axios
-                .post('http://localhost:8080/api/postMessage', messageObject,
+                .post('https://ariten.herokuapp.com/api/postMessage', messageObject,
                     {headers: {Authorization: 'Bearer: ' + token}}
                 )
                 .then(async response => {
@@ -335,7 +335,7 @@ const PrivateChatPage = () => {
         try {
 
             axios
-                .get(`http://localhost:8080/api/userDetail?id=${id2}&page=${sivut}&filter=${filter}`,
+                .get(`https://ariten.herokuapp.com/api/userDetail?id=${id2}&page=${sivut}&filter=${filter}`,
                     {headers: {Authorization: 'Bearer: ' + token}}
                 )
                 .then(response => {
@@ -425,7 +425,7 @@ const PrivateChatPage = () => {
         try {
 
             await axios
-                .get(`http://localhost:8080/api/searchFriends?search=${value}`,
+                .get(`https://ariten.herokuapp.com/api/searchFriends?search=${value}`,
                     {headers: {Authorization: 'Bearer: ' + token}}
                 )
                 .then(async response => {
@@ -574,7 +574,7 @@ const PrivateChatPage = () => {
                 setTokenArvo(true)
 
                 await axios
-                    .get(`http://localhost:8080/api/users?page=${0}`,
+                    .get(`https://ariten.herokuapp.com/api/users?page=${0}`,
                         {headers: {Authorization: 'Bearer: ' + token}}
                     )
                     .then(response => {

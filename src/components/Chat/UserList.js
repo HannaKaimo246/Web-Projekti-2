@@ -12,7 +12,7 @@ const UserList = () => {
 
     const { regenerateToken, logout } = useAuth()
 
-    const ENDPOINT = "http://localhost:8080"
+    const ENDPOINT = "https://ariten.herokuapp.com:8080"
 
     const socket = socketIOClient(ENDPOINT)
 
@@ -47,7 +47,7 @@ const UserList = () => {
         let token = JSON.parse(tokenObject).token
 
         axios
-            .get('http://localhost:8080/api/check',
+            .get('https://ariten.herokuapp.com/api/check',
                 {headers: {Authorization: 'Bearer: ' + token}}
             ).then(response => {
 
@@ -77,7 +77,7 @@ const UserList = () => {
 
         console.log('effect')
         axios
-            .get(`http://localhost:8080/api/search?name=${hae}`,
+            .get(`https://ariten.herokuapp.com/api/search?name=${hae}`,
                 {headers: {Authorization: 'Bearer: ' + token}}
             ).then(response => {
                 console.log('Käyttäjien listaaminen onnistui!' + JSON.stringify(response.data))
@@ -112,7 +112,7 @@ const UserList = () => {
         }
 
         axios
-            .post('http://localhost:8080/api/invites', inviteObject,
+            .post('https://ariten.herokuapp.com/api/invites', inviteObject,
                 {headers: {Authorization: 'Bearer: ' + token}}
             ).then(response => {
             console.log('Kutsun lähettäminen onnistui!' + JSON.stringify(response.data))
@@ -142,7 +142,7 @@ const UserList = () => {
             vastaanottaja: value
         }
 
-        axios.delete('http://localhost:8080/api/deleteInvite', {
+        axios.delete('https://ariten.herokuapp.com/api/deleteInvite', {
                 headers: {
                     Authorization: 'Bearer: ' + token,
                     deleteobject: JSON.stringify(inviteObject)
