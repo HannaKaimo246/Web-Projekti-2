@@ -43,10 +43,8 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "jest",
-    "eject": "react-scripts eject"
+    "start": "node server.js",
+    "build": "cd client/ && yarn install && yarn build"
   },
   "eslintConfig": {
     "extends": [
