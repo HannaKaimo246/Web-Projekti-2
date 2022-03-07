@@ -80,9 +80,9 @@ const Sockets = (io) => {
          * Seuraava toiminto lähettää kaikille selaimille tiedon että joku kirjoittaa openchatissa.
          */
 
-        socket.on('typing', value => {
+        socket.on('typing', (value) => {
 
-            io.emit('typing', value);
+           socket.broadcast.emit('typing', value);
 
         });
 
@@ -116,14 +116,8 @@ const Sockets = (io) => {
          */
 
         socket.on('msg', msg => {
-            let message = {
-                username: socket.username,
-                msg: msg
-            };
 
-
-
-            socket.broadcast.emit('msg', message)
+            socket.broadcast.emit('msg', msg)
 
         });
 
@@ -224,36 +218,17 @@ const Sockets = (io) => {
          */
 
         /**
-         * Asetetaan markkerit valituille kavereille.
-         */
-
-        socket.on("setMarkers", function (array) {
-
-           array.tiedot.forEach(roomi =>  socket.join(roomi));
-
-        })
-
-        /**
-         * Asetetaan oma markkeri valituille kavereille.
-         */
-
-        socket.on("myMarker", function (value) {
-
-            socket.join(value);
-
-        })
-
-        /**
          * Seuraava toiminto lähettää valituille selaimille tiedon lisäämään markkeri muiden kartoille.
          */
 
-        socket.on("showMarkers", function (array, coords) {
+        socket.on("shareLocation", function (array) {
 
             let arvo = socket;
 
-           array.tiedot.forEach(roomi => arvo.to(roomi).emit("showMarkers", coords));
+            array.users.forEach(roomi => arvo.to(roomi).emit("showMarkers", array) );
 
         })
+
 
     });
 

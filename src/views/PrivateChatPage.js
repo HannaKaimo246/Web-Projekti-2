@@ -12,7 +12,7 @@ const PrivateChatPage = () => {
 
     const socket = socketIOClient(ENDPOINT)
 
-    const {user} = useAuth()
+    const {user, regenerateToken, logout } = useAuth()
 
     const [messages, setMessages] = useState([])
 
@@ -53,7 +53,7 @@ const PrivateChatPage = () => {
         const tokenObject = localStorage.getItem('token')
 
         if (tokenObject == null)
-            return false
+            return logout()
 
         let token = JSON.parse(tokenObject).token;
 
@@ -105,6 +105,7 @@ const PrivateChatPage = () => {
             }).catch(function (error) {
             console.log("tokenni: " + token)
             console.log("Virhe: " + error)
+            regenerateToken()
         });
 
     }
@@ -117,7 +118,7 @@ const PrivateChatPage = () => {
         const tokenObject = localStorage.getItem('token')
 
         if (tokenObject == null)
-            return false
+            return logout()
 
         let token = JSON.parse(tokenObject).token;
 
@@ -160,6 +161,7 @@ const PrivateChatPage = () => {
 
         }).catch(function (error) {
             console.log("Virhe: " + error)
+            regenerateToken()
         });
 
 
@@ -188,7 +190,7 @@ const PrivateChatPage = () => {
         const tokenObject = localStorage.getItem('token')
 
         if (tokenObject == null)
-            return false
+            return logout()
 
         let token = JSON.parse(tokenObject).token
 
@@ -216,6 +218,7 @@ const PrivateChatPage = () => {
 
                 }).catch(function (error) {
                     console.log("Virhe: " + error)
+                    regenerateToken()
                 });
 
         } catch (error) {
@@ -230,7 +233,7 @@ const PrivateChatPage = () => {
         const tokenObject = localStorage.getItem('token')
 
         if (tokenObject == null)
-            return false
+            return logout()
 
         let token = JSON.parse(tokenObject).token;
 
@@ -277,6 +280,7 @@ const PrivateChatPage = () => {
 
                 }).catch(function (error) {
                     console.log("Virhe: " + error)
+                    regenerateToken()
                 });
 
         } catch (error) {
@@ -320,10 +324,13 @@ const PrivateChatPage = () => {
 
         const tokenObject = localStorage.getItem('token')
 
-        if (tokenObject == null || filter == '' || id2 == '')
-            return false
+        if (tokenObject == null)
+            return logout()
 
         let token = JSON.parse(tokenObject).token;
+
+        if (filter == '' || id2 == '')
+            return false
 
         try {
 
@@ -388,6 +395,7 @@ const PrivateChatPage = () => {
 
                 }).catch(function (error) {
                 console.log("Virhe: " + error)
+                regenerateToken()
             });
 
         } catch (error) {
@@ -408,7 +416,7 @@ const PrivateChatPage = () => {
         const tokenObject = localStorage.getItem('token')
 
         if (tokenObject == null)
-            return false
+            return logout()
 
         let token = JSON.parse(tokenObject).token;
 
@@ -437,6 +445,7 @@ const PrivateChatPage = () => {
 
                 }).catch(function (error) {
                     console.log("Virhe: " + error)
+                    regenerateToken()
                 });
 
         } catch (error) {
@@ -555,7 +564,7 @@ const PrivateChatPage = () => {
             const tokenObject = localStorage.getItem('token')
 
             if (tokenObject == null)
-                return false
+                return logout()
 
             let token = JSON.parse(tokenObject).token;
 
@@ -601,12 +610,15 @@ const PrivateChatPage = () => {
                         }
 
                     }).catch(function (error) {
+                        console.log("toimii?2")
                         console.log("Virhe: " + error)
+                        regenerateToken()
                     });
 
                 setLoading(true)
 
             } catch (error) {
+                console.log("toimii?3")
                 console.log(error);
             }
 

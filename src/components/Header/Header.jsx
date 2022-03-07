@@ -17,12 +17,12 @@ const AddLocation = () => {
 
   let ownUser = document.getElementById('nimimerkki').value;
 
-  let circle = [
+  let circle =
     {
       id: 1,
       name: ownUser,
-      latitude: "61",
-      longitude: "24",
+      latitude: 60.192059,
+      longitude: 24.945831,
       circle: {
         options: {
           strokeColour: 'red',
@@ -31,7 +31,8 @@ const AddLocation = () => {
 
       },
     }
-  ]
+
+  console.log(circle.name);
 
 }
 
@@ -52,20 +53,12 @@ const onPlaceChanged = () => {
 
 
   return (
-<AppBar position="static">
+<AppBar position="static" id="appBar">
   <Toolbar className={classes.toolbar}>
     <Typography variant="h4" className={classes.title}>
           Chat Kartta
     </Typography>
     <Box display="flex">
-      <Typography variant="h5" className={classes.title}>
-          Lisää uusi chattaaja
-      </Typography>
-      <Input type="text" className={classes.title} placeholder="nimimerkki" id="nimimerkki">
-      </Input>
-      <Button class="btn btn-primary" type="submit" id="locationButton" onClick={AddLocation}>
-        Lisää
-      </Button>
       <Typography variant="h5" className={classes.title}>
         Etsi
       </Typography>

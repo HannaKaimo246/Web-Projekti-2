@@ -66,13 +66,17 @@ const Login = () => {
 
         try {
 
-            if (id == "forgotpassword") {
+               setError('')
+
+               const search =  window.location.search;
+               const params = new URLSearchParams(search);
+               const value = params.get('ForgotPassword');
+
+            if (value) {
 
                 // unohtunut salasana
 
                 await login(newEmail, newPassword)
-
-                const authtoken = login.credential.idToken
 
                 const ifuserExists = await userExists(newEmail)
 
@@ -81,19 +85,34 @@ const Login = () => {
                     console.log("Kayttaja on olemassa firebasessa!")
 
                     axios
-                        .post('http://localhost:8080/api/checkFirebase', userObject,
-                    {headers: {
-                        Authorization: 'Bearer: ' + authtoken,
-                            alg: 'RS256',
-                            kid: '2dc0e6df9827a02061e82f45b48400d0d5b282c0'
-                        }
-                    }
+                        .post('http://localhost:8080/api/checkForgotPassword', userObject,
+                    {headers: {Authorization: 'Bearer ' + localStorage.getItem('firebaseToken')}}
                         ).then(response => {
 
-                      console.log("firebase tarkistus: " + JSON.stringify(response.data))
+                        if (response.status === 202) {
+
+                        console.log("firebase tarkistus: " + JSON.stringify(response.data))
+
+                        localStorage.setItem('token', JSON.stringify(response.data))
+
+                        localStorage.removeItem('firebaseToken')
+
+                        handleReset()
+
+                        if (_isMounted) {
+
+                            loginUser({email: newEmail})
+
+                            history.push('/');
+                        }
+
+                    } else {
+                            setError('Salasana ei täsmää!')
+                        }
 
                     }).catch(function (error) {
                         console.log(error)
+                        setError('Ei voitu kirjautua sisään!')
                     });
 
 
@@ -134,10 +153,13 @@ const Login = () => {
 
                             history.push('/');
                         }
+                    } else {
+                        setError('Sähköpostiosoite tai salasana on väärin!')
                     }
 
                 }).catch(function (error) {
                     console.log(error)
+                    setError('Ei voitu kirjautua sisään!')
                 });
 
             }
@@ -189,7 +211,7 @@ const Login = () => {
                                 <Form.Group id="password">
                                     <Form.Label>Salasana</Form.Label>
                                     <Form.Control
-                                        required pattern="[a-zA-Z0-9]{8,}"
+                                        required pattern="[a-zA-Z0-9_@.!+-,?/]{8,}"
                                         type="password"
                                         name="salasana"
                                         onChange={handlePasswordChange}

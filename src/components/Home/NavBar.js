@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from "react";
 import {Link, useHistory} from "react-router-dom";
 import {useAuth} from "../../contexts/AuthContext";
-import {auth} from "firebase";
+import firebase, {auth} from "firebase";
 import '../../styles/NavBar.scss'
 import { useMediaQuery } from 'react-responsive';
 import axios from "axios";
@@ -25,8 +25,14 @@ const NavBar = () => {
 
     const handleLogout = async () => {
         try {
+
+
+
             await logout()
-            history.push("/api/login")
+
+
+
+            history.push("/api/user/login")
         } catch (error) {
             console.log("Ei voitu kirjautua ulos!")
         }
@@ -51,7 +57,7 @@ const NavBar = () => {
         const tokenObject = localStorage.getItem('token')
 
         if (tokenObject == null)
-            return false
+            return logout()
 
         let token = JSON.parse(tokenObject).token
 
@@ -75,7 +81,12 @@ const NavBar = () => {
             ).then(response => {
             console.log('Käyttäjien ilmoittaminen onnistui!' + JSON.stringify(response.data))
 
-            setIlmoitus(response.data.userdata.length)
+            if (response.status === 200) {
+                setIlmoitus(response.data.userdata.length)
+            } else {
+                history.push("api/user/login")
+            }
+
         })
 
     }, [])
@@ -122,6 +133,12 @@ const NavBar = () => {
                     {user &&
                         <li>
                             <Link className="navstyles" to="/api/privatechat">Chat<i
+                                className="ion-md-chatbubbles"/></Link>
+                        </li>
+                    }
+                    {!user &&
+                        <li>
+                            <Link className="navstyles" to="/api/openchat">Chat<i
                                 className="ion-md-chatbubbles"/></Link>
                         </li>
                     }

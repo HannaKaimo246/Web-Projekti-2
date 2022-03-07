@@ -29,9 +29,9 @@ const firebase = require('./routes/firebaseuser');
 
 app.use(firebase);
 
-//const settings = require('./routes/settings');
+const settings = require('./routes/settings');
 
-//app.use(settings);
+app.use(settings);
 
 const map = require('./routes/map');
 

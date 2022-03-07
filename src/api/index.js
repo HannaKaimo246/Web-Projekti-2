@@ -1,6 +1,11 @@
 import axios from "axios";
 
-
+/**
+ *
+ * @param type
+ * @param sw
+ * @param ne
+ */
 export const getPlacesData = async (type, sw, ne) => {
   try {
 const { data: {data} } = await axios.get(`https://travel-advisor.p.rapidapi.com/${type}/list-in-boundary`, {
@@ -12,7 +17,7 @@ const { data: {data} } = await axios.get(`https://travel-advisor.p.rapidapi.com/
       },
   headers: {
     'x-rapidapi-host': 'travel-advisor.p.rapidapi.com',
-    'x-rapidapi-key': 'f10fecb448msh6be2fbd4b6f9188p1d81f6jsnbe07e004f328'
+    'x-rapidapi-key': 'abca063312msh997f8fc0e0a82e4p10'
   }
 });
 

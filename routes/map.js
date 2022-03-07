@@ -35,6 +35,7 @@ router.get("/api/mapUsers", VerifyToken, function (req, res) {
         }
         catch (err) {
             console.log("Database error!"+ err);
+            res.status(400).send(err);
         }
     })()
 

@@ -11,7 +11,7 @@ import {Form} from "react-bootstrap";
 
 const PrivateChat = (props) => {
 
-    const { polku } = useParams();
+    const {polku} = useParams();
 
     const history = useHistory()
 
@@ -120,7 +120,7 @@ const PrivateChat = (props) => {
 
         }
 
-    },[haeLista])
+    }, [haeLista])
 
     const handleHaeLista = (event) => {
 
@@ -141,7 +141,7 @@ const PrivateChat = (props) => {
         let r = window.confirm("Haluatko varmasti poistaa kaverin?");
         if (r == true) {
 
-           props.poistaKayttaja(id)
+            props.poistaKayttaja(id)
 
         }
 
@@ -207,7 +207,6 @@ const PrivateChat = (props) => {
         props.haeKaveri(id, false, selectedOption)
 
 
-
     }
 
     const hakuLista = () => {
@@ -261,13 +260,13 @@ const PrivateChat = (props) => {
 
         console.log("valittu: " + valittuID + " ja " + event.target.value)
 
-       props.haeKaveri(valittuID, false, event.target.value)
+        props.haeKaveri(valittuID, false, event.target.value)
 
     }
 
     /**
-    * Reactin useEffectit
-    */
+     * Reactin useEffectit
+     */
 
     useEffect(() => {
 
@@ -371,7 +370,7 @@ const PrivateChat = (props) => {
 
         setTyping(props.typing)
 
-    },[props.typing])
+    }, [props.typing])
 
 
     const handleMessageChange = (event) => {
@@ -386,9 +385,9 @@ const PrivateChat = (props) => {
 
     useEffect(() => {
 
-            setMessages2(props.messages2)
+        setMessages2(props.messages2)
 
-    },[props.messages2])
+    }, [props.messages2])
 
 
     /*
@@ -399,7 +398,7 @@ const PrivateChat = (props) => {
 
         setUsersTyping(props.usersTyping)
 
-    },[props.usersTyping])
+    }, [props.usersTyping])
 
     /*
     *  Paivittaa kaverin poiston listalta
@@ -409,7 +408,7 @@ const PrivateChat = (props) => {
 
         setUsers(props.users)
 
-    },[props.users])
+    }, [props.users])
 
     /*
      *  Paivitetaan paikalla olevat kayttajat listaan
@@ -419,28 +418,42 @@ const PrivateChat = (props) => {
 
         setPaikalla(props.paikalla)
 
-    },[props.paikalla])
+    }, [props.paikalla])
+
+    const openChat = () => {
+
+        history.push('/api/openchat')
+
+    }
 
     return (
         <div id="privatechat">
             <section className="kaverilista">
                 <section id="hakukentta">
-                    <input disabled={users.length <= 0 && !haeLista} type="text" onChange={handleHaeLista} value={haeLista}
+                    <input disabled={users.length <= 0 && !haeLista} type="text" onChange={handleHaeLista}
+                           value={haeLista}
                            placeholder="Hae kavereita"/> {haeLista && <p>Tuloksia löydetty : ({users.length})</p>}
                 </section>
                 {users.length > 0 &&
                     <section id="lista">
                         {users.map((user, index) =>
-                            <div key={index}>
-                                <button
-                                    onClick={() => poistaKayttaja(user.kayttaja_id == user.vastaanottaja_id ? user.vastaanottaja_id : user.lahettaja_id)}>🗑️
-                                </button>
-                                <button className={`
+                            <div key={index} id="viestimissisalto" className={`
                      ${index === active ? 'nayta' : ''}
                      ${paikalla.includes(user.kayttaja_id) ? 'paikalla' : 'poissa'}
                      listapainikkeet
-                `} type="button"
-                                        onClick={() => haeKaveri(user.kayttaja_id == user.vastaanottaja_id ? user.vastaanottaja_id : user.lahettaja_id, index)}>{user.sahkoposti}</button>
+                `}
+                                 onClick={() => haeKaveri(user.kayttaja_id == user.vastaanottaja_id ? user.vastaanottaja_id : user.lahettaja_id, index)}>
+
+                                { user.kuva && <img src={'http://localhost:8080/' + user.kuva} alt="profiilikuva" width="100" height="auto" /> }
+
+                                { !user.kuva && <img src={'http://localhost:8080/uploads/default-user.png'} alt="profiilikuva" width="150" height="auto" /> }
+
+                                <h5> {user.sahkoposti} </h5>
+
+                                <a
+                                    onClick={() => poistaKayttaja(user.kayttaja_id == user.vastaanottaja_id ? user.vastaanottaja_id : user.lahettaja_id)}>🗑️
+                                </a>
+
                             </div>
                         )}
                     </section>
@@ -457,20 +470,23 @@ const PrivateChat = (props) => {
                 }
 
                 <section id="kentta_pohja">
-                    <section id="sivupalkit">
-                        <div>
-                            <button
-                                onClick={() => selaahandle(setSivu(sivu - 8), setNykyinenSivuMaara(nykyinenSivumaara - 1))}
-                                disabled={disabled2} id="vasen">⬅
-                            </button>
-                            <p>{nykyinenSivumaara}/{count}</p>
-                            <button
-                                onClick={() => selaahandle(setSivu(sivu + 8), setNykyinenSivuMaara(nykyinenSivumaara + 1))}
-                                disabled={disabled} id="oikea">➡
-                            </button>
-                        </div>
-                    </section>
+                    {users.length !== 0 &&
+                        <section id="sivupalkit">
+                            <div>
+                                <button
+                                    onClick={() => selaahandle(setSivu(sivu - 8), setNykyinenSivuMaara(nykyinenSivumaara - 1))}
+                                    disabled={disabled2} id="vasen">⬅
+                                </button>
+                                <p>{nykyinenSivumaara}/{count}</p>
+                                <button
+                                    onClick={() => selaahandle(setSivu(sivu + 8), setNykyinenSivuMaara(nykyinenSivumaara + 1))}
+                                    disabled={disabled} id="oikea">➡
+                                </button>
+                            </div>
+                        </section>
+                    }
                     <button id="lisaa" onClick={() => hakuLista()}>Lisää kaveri</button>
+                    <button id="lisaa" onClick={() => openChat()}>Open Chat</button>
                 </section>
 
             </section>
@@ -480,8 +496,6 @@ const PrivateChat = (props) => {
                 <section id="sisalto" ref={sisalto}>
 
                     {valittuID == 0 && <h1>Aloita klikkaamalla kaveria!</h1>}
-
-                    {messages2.length != 0 && messages2.length % 10 == 0 && <h2>⬆ Hae viestejä rullaamalla ylös ⬆</h2>}
 
                     {messages2.length != 0 && messages2.length % 10 !== 0 &&
                         <h3>⬇ Viestit loppuivat ⬇</h3>}
@@ -520,16 +534,17 @@ const PrivateChat = (props) => {
                         {typing && usersTyping.map((user, index) =>
                             <div key={index} id="kirjoittaa">{user} kirjoittaa...</div>
                         )}
-                        <input type="text" placeholder="Kirjoita viesti..." name="viestikentta" value={omaviesti} onChange={handleMessageChange} />
+                        <input type="text" placeholder="Kirjoita viesti..." name="viestikentta" value={omaviesti}
+                               onChange={handleMessageChange}/>
                         <button type="submit" id="laheta">Lähetä</button>
                         <select value={selectedOption} onChange={handleSelectOption}>
                             <option value="uusin">Uusin</option>
-                            <option value="vanha">Vanha</option>
+                            <option value="vanha">Vanhin</option>
                         </select>
                     </Form>
                 }
             </section>
-</div>
+        </div>
 
     )
 }

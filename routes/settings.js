@@ -18,10 +18,10 @@ const { check, validationResult } = require('express-validator');
  */
 
 /**
- * Seuraava toiminto tarkistaa onko nimimerkki vähintään 5 merkkiä pitkä.
+ * Seuraava toiminto tarkistaa onko sähköpostiosoite kelvollinen.
  */
 
-router.put("/api/settings/username", urlencodedParser, [check('nimimerkki').isLength({ min: 5 }).withMessage("Nimimerkki täytyy olla vähintään 5 merkkiä pitkä!")], VerifyToken, function (req, res) {
+router.put("/api/settings/email", urlencodedParser, [check('sahkoposti').isEmail().withMessage("Sähköpostiosite ei ole kelvollinen!")], VerifyToken, function (req, res) {
 
     /**
      * Jos ilmenee virheitä, palautetaan virhe status selaimeen.
@@ -39,25 +39,22 @@ router.put("/api/settings/username", urlencodedParser, [check('nimimerkki').isLe
      * Kyseinen sql lause päivittää nimimerkin kayttaja taulussa, kayttaja_id mukaan.
      */
 
-    let sql = "UPDATE kayttaja SET nimimerkki = ? WHERE kayttaja_id = ?";
+    let sql = "UPDATE kayttaja SET sahkoposti = ? WHERE kayttaja_id = ?";
 
     (async () => {
         try {
 
-            await query(sql,[req.body.nimimerkki, req.userData.id]);
+            await query(sql,[req.body.sahkoposti, req.userData.id]);
 
             /**
              * Jos tietokanta kysely onnistui läheteään ilmoitus status 200 selaimeen.
              */
 
-            return res.status(200).json({
-                success: true,
-                message: 'Käyttäjänimen päivittäminen onnistui!'
-
-            })
+            res.status(200).send('Sähköpostin päivittäminen onnistui!')
 
         } catch (err) {
             console.log("Database error!"+ err);
+            res.status(400).send(err);
         }
     })()
 
@@ -107,14 +104,11 @@ router.put("/api/settings/password", urlencodedParser, [check('salasana').isLeng
              * Jos sql kysely onnistui, palautetaan onnistunut tieto selaimeen.
              */
 
-            return res.status(200).json({
-                success: true,
-                message: 'Käyttäjänimen päivittäminen onnistui!'
-
-            })
+            res.status(200).json('Käyttäjänimen päivittäminen onnistui!')
 
         } catch (err) {
             console.log("Database error!"+ err);
+            res.status(400).send(err);
         }
     })()
 

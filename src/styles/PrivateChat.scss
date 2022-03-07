@@ -1,7 +1,32 @@
+#viestimissisalto {
+
+  background-color: white !important;
+  display: inline-block;
+  border-radius: 20px;
+  padding: 5px;
+
+}
+
+#viestimissisalto > img {
+
+  border-radius: 50px;
+
+}
+
+
 #laheta {
 
   background-color: #41B883;
 
+}
+
+#lista {
+  overflow: auto;
+  height: 50vh;
+}
+
+p {
+  text-indent: 0 !important;
 }
 
 .poisto {
@@ -35,8 +60,6 @@
   color: transparent;
   text-shadow: 0 0 0 red;
   content: "🔴 offline";
-  margin-left: 20px;
-
 
 }
 
@@ -45,7 +68,6 @@
   color: transparent;
   text-shadow: 0 0 0 green;
   content: "🔴 online";
-  margin-left: 20px;
 
 }
 
@@ -226,7 +248,7 @@ input {
 }
 
 .nayta{
-  background: #090909;
+  border-style: dotted;
 }
 
 .div{

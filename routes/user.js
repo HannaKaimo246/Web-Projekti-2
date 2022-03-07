@@ -7,7 +7,7 @@ router.use(cors());
 const jwt = require('jsonwebtoken');
 const config = require('./config');
 const VerifyToken = require('./verifytoken');
-
+const jwt_decode = require('jwt-decode');
 const multer = require('multer')
 
 /**
@@ -70,6 +70,8 @@ router.post("/api/login", urlencodedParser,
     (async () => { // IIFE (Immediately Invoked Function Expression)
         try {
 
+            console.log("sahkoposti:" + jsonObj.sahkoposti)
+
             const rows = await query(sql,[jsonObj.sahkoposti]);
 
                 /**
@@ -92,7 +94,7 @@ router.post("/api/login", urlencodedParser,
 
                     if (validPassword) {
 
-                        const tokenValue = jwt.sign({id: insertedId, user: req.body.sahkoposti}, config.secret, {
+                        const tokenValue = jwt.sign({id: insertedId, user: req.body.sahkoposti, password: req.body.salasana}, config.secret, {
                             expiresIn: "1h"
                         });
 
@@ -196,6 +198,7 @@ router.post("/api/register", urlencodedParser,
         }
         catch (err) {
             console.log("Database error!"+ err);
+            res.status(400).send(err);
         }
     })()
 
@@ -207,9 +210,23 @@ router.post("/api/register", urlencodedParser,
 
 router.get("/api/check", VerifyToken, function (req, res) {
 
-    res.json({
-        value: req.userData
-    });
+    let sql = "SELECT * FROM kayttaja WHERE kayttaja_id = ?";
+
+    (async () => {
+        try {
+
+             const rows = await query(sql,[req.userData.id]);
+
+            res.json({
+                value: req.userData,
+                user: rows
+            })
+
+        } catch (err) {
+            console.log("Database error!"+ err);
+            res.status(400).send(err);
+        }
+    })()
 
 });
 
@@ -242,6 +259,7 @@ router.get("/api/search", VerifyToken, function (req, res) {
 
         } catch (err) {
                 console.log("Database error!"+ err);
+                res.status(400).send(err);
             }
         })()
 });
@@ -295,15 +313,16 @@ router.post("/api/invites", urlencodedParser, VerifyToken,
                     res.status(201).json({
                         id: jsonObj.vastaanottaja
                     })
+
+                } else {
+
+                    res.status(403).send("Kutsun lähettämisessä tapahtui virhe!")
                 }
-
-
-                res.status(403).send("Kutsun lähettämisessä tapahtui virhe!")
-
 
             }
             catch (err) {
                 console.log("Database error!"+ err);
+                res.status(400).send(err);
 
             }
         })()
@@ -311,50 +330,6 @@ router.post("/api/invites", urlencodedParser, VerifyToken,
 
     });
 
-
-/**
- * Seuraava toiminto hakee jokaisen käyttäjän kannasta ja selaimessa laittaa tiedot selaus listaan käyttäjälista sivulla.
- */
-/*
-router.get("/api/search/users", VerifyToken, function (req, res) {
-
-    let arvo = req.query.filter;
-
-    let sql;
-
-    if (arvo == 1) {
-
-        sql = "SELECT kayttaja.kayttaja_id, kayttaja.nimimerkki FROM kayttaja LEFT JOIN kaverilista ON (kayttaja.kayttaja_id = kaverilista.lahettaja_id  AND kaverilista.vastaanottaja_id = ?) OR (kayttaja.kayttaja_id = kaverilista.vastaanottaja_id  AND kaverilista.lahettaja_id = ?) WHERE kayttaja.kayttaja_id != ? AND kaverilista.kaveri_id IS NULL ORDER BY kayttaja.kayttaja_id DESC LIMIT ? OFFSET ?";
-
-    } else if (arvo == 2) {
-
-        sql = "SELECT kayttaja.kayttaja_id, kayttaja.nimimerkki FROM kayttaja LEFT JOIN kaverilista ON (kayttaja.kayttaja_id = kaverilista.lahettaja_id  AND kaverilista.vastaanottaja_id = ?) OR (kayttaja.kayttaja_id = kaverilista.vastaanottaja_id  AND kaverilista.lahettaja_id = ?) WHERE kayttaja.kayttaja_id != ? AND kaverilista.kaveri_id IS NULL ORDER BY kayttaja.kayttaja_id ASC LIMIT ? OFFSET ?";
-    }
-
-
-    let sql2 = "SELECT COUNT(*) AS count FROM kayttaja LEFT JOIN kaverilista ON (kayttaja.kayttaja_id = kaverilista.lahettaja_id  AND kaverilista.vastaanottaja_id = ?) OR (kayttaja.kayttaja_id = kaverilista.vastaanottaja_id  AND kaverilista.lahettaja_id = ?) WHERE kayttaja.kayttaja_id != ? AND kaverilista.kaveri_id IS NULL";
-
-
-    (async () => {
-        try {
-
-            const rows = await query(sql,[req.userData.id, req.userData.id, req.userData.id, parseInt(req.query.page), parseInt(req.query.page) - 10]);
-
-            const rows2 = await query(sql2,[req.userData.id, req.userData.id, req.userData.id]);
-
-            return res.status(200).json({
-                success: true,
-                message: 'Haku onnistui!',
-                userdata: rows,
-                count: rows2
-            })
-
-        } catch (err) {
-            console.log("Database error!"+ err);
-        }
-    })()
-});
-*/
 
 /**
  * Seuraava toiminto käsittelee käyttäjän saapuneita kutsuja.
@@ -383,6 +358,7 @@ router.get("/api/myInvites", VerifyToken, function (req, res) {
 
         } catch (err) {
             console.log("Database error!"+ err);
+            res.status(400).send(err);
         }
     })()
 });
@@ -416,6 +392,7 @@ router.delete("/api/deleteInvite", VerifyToken, function (req, res) {
 
         } catch (err) {
             console.log("Database error!"+ err);
+            res.status(400).send(err);
         }
     })()
 
@@ -449,6 +426,7 @@ router.delete("/api/deleteInvite2", VerifyToken, function (req, res) {
 
         } catch (err) {
             console.log("Database error!"+ err);
+            res.status(400).send(err);
         }
     })()
 
@@ -481,7 +459,8 @@ router.get("/api/receiveInvites", VerifyToken, function (req, res) {
             })
 
         } catch (err) {
-            console.log("Database error!"+ err);
+            console.log("Database error receiveInvites!"+ err);
+            res.status(400).send(err);
         }
     })()
 });
@@ -517,6 +496,7 @@ router.put("/api/acceptInvite", urlencodedParser, VerifyToken, function (req, re
 
         } catch (err) {
             console.log("Database error!"+ err);
+            res.status(400).send(err);
         }
     })()
 
@@ -548,6 +528,7 @@ router.post("/api/addImage", upload.single('image'), VerifyToken, function (req,
 
             } catch (err) {
                 console.log("Ei voitu lisätä kuvaa: "+ err);
+                res.status(400).send(err);
             }
         })()
     }
@@ -555,5 +536,86 @@ router.post("/api/addImage", upload.single('image'), VerifyToken, function (req,
 
 })
 
+/*
+ *  Generoidaan uusi token
+ */
+
+router.post("/api/regenerateToken", urlencodedParser, function (req, res) {
+
+    let sql = "SELECT * FROM kayttaja WHERE sahkoposti = ?";
+
+    let token = req.body.token
+
+    console.log("token:" + token)
+
+    const decoded = jwt_decode(token);
+
+    (async () => { // IIFE (Immediately Invoked Function Expression)
+        try {
+
+            jwt.verify( token, config.secret, function(err, decoded) {
+
+                if (!err)
+                    throw "virhe token validi"
+
+
+            } );
+
+            const rows = await query(sql, [decoded.user]);
+
+            /**
+             * Tarkistetaan onko nimimerkki ja salasana kelvollisia.
+             */
+
+            if (rows[0].sahkoposti != null && rows[0].salasana != null && rows.length != 0) {
+
+                /**
+                 * Otetaan käyttäjän id tietokannasta
+                 */
+
+                let insertedId = rows[0].kayttaja_id;
+
+                /**
+                 * Tarkistetaan täsmääkö salasana ja jos täsmää, luodaan json token arvoineen.
+                 */
+
+                const validPassword = await bcrypt.compare(decoded.password, rows[0].salasana);
+
+                if (validPassword) {
+
+                    const tokenValue = jwt.sign({
+                        id: insertedId,
+                        user: decoded.user,
+                        password: decoded.password
+                    }, config.secret, {
+                        expiresIn: "1h"
+                    });
+
+                    /**
+                     * Jos kaikki onnistui viedään token selaimeen ja käyttäjän tiedot.
+                     */
+
+                    res.status(202).json({
+                        token: tokenValue,
+                        user: decoded.user
+                    });
+
+                } else {
+                    res.status(204).send()
+                }
+
+            } else {
+
+                res.status(401).send('Tyhjät kentät!')
+            }
+
+        } catch (err) {
+            console.log("Insertion into some (2) table was unsuccessful!" + err)
+            res.status(400).send('kirjautuminen ei onnistunut!' + err)
+
+        }
+    })()
+
+})
 
 module.exports = router;
