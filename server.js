@@ -1,15 +1,17 @@
 const express = require('express');
 const http = require('http');
-
+const serveStatic = require("serve-static");
+const path = require('path');
+const cors = require('cors');
 /**
  * Server.js tiedostossa kokontuu projektin kaikki nodeJS tiedostot yhteen.
  */
 
-
-
 const app = express();
 const server = http.createServer(app);
 app.set("trust proxy", 1);
+
+app.use('/', serveStatic(path.join(__dirname, '/dist')));
 
 const privateChat = require('./routes/chat');
 
@@ -37,9 +39,7 @@ const map = require('./routes/map');
 
 app.use(map);
 
-const path = require('path');
 
-const cors = require('cors');
 app.use(cors());
 
 app.use(express.static(path.join(__dirname,'./public')));
@@ -49,13 +49,12 @@ app.use('/uploads', express.static(path.resolve(__dirname, './uploads')));
 const io = require('socket.io')(server, {
     cors: {
         origin: '*',
-        credentials: true
     }
 });
 
 require('./routes/sockets')(io);
 
-server.listen(8080, () => {
+server.listen(process.env.PORT || 8080, () => {
 
     let host = server.address().address
     let port = server.address().port
