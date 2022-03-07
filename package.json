@@ -44,7 +44,9 @@
   },
   "scripts": {
     "start": "node server.js",
-    "build": "cd client/ && yarn install && yarn build"
+    "build": "react-scripts build",
+    "test": "jest",
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
