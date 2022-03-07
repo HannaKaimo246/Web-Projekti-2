@@ -5,10 +5,10 @@ const mysql = require('mysql');
  */
 
 const conn = mysql.createConnection({
-    host: "127.0.0.1",
-    user: "root",
-    password: "",
-    database: "chatti_db"
+    host: 'byosoe21zqmlnw17quml-mysql.services.clever-cloud.com',
+    user: 'uqxs8s8ocmowhye8',
+    password: 'yitEuGYWBQ21Z0vMbjfO',
+    database: 'byosoe21zqmlnw17quml'
 });
 
 conn.connect(function(err) {
